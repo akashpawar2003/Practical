@@ -1,0 +1,113 @@
+Slip 11: 
+Q1: 
+1) BeatModelInterface.java 
+ 
+public interface BeatModelInterface { 
+    int getBeatPerMinute(); 
+    void initialize(); 
+} 
+ 
+2) HeartModel.java (Adaptee) 
+public class HeartModel { 
+    private int heartRate; 
+    public HeartModel(int heartRate) { 
+        this.heartRate = heartRate; 
+    } 
+    public int getHeartRate() { 
+        return heartRate; 
+    } 
+    public void start() { 
+        System.out.println("Heart Model Started..."); 
+    } 
+} 
+ 
+ 3) HeartAdapter.java (Adapter) 
+public class HeartAdapter implements BeatModelInterface { 
+    private HeartModel heart; 
+    public HeartAdapter(HeartModel heart) { 
+        this.heart = heart; 
+    } 
+    @Override 
+    public int getBeatPerMinute() { 
+        return heart.getHeartRate();   
+    } 
+    @Override 
+    public void initialize() { 
+        heart.start();    
+    } 
+} 
+4) Main.java (Client Code) 
+public class Main { 
+public static void main(String[] args) { 
+HeartModel heart = new HeartModel(72); 
+BeatModelInterface beatModel = new HeartAdapter(heart); 
+beatModel.initialize(); 
+System.out.println("Beat Per Minute : " + beatModel.getBeatPerMinute()); 
+} 
+} 
+Q.2  
+a) Light an LED through Python program 
+import RPi.GPIO as GPIO 
+import time 
+GPIO.setmode(GPIO.BOARD) 
+led = 11 
+GPIO.setup(led, GPIO.OUT) 
+GPIO.output(led, True) 
+print("LED ON") 
+t
+ ime.sleep(5) 
+GPIO.output(led, False) 
+print("LED OFF") 
+GPIO.cleanup() 
+b) Input from two switches and turn ON corresponding LEDs 
+import RPi.GPIO as GPIO 
+import time 
+GPIO.setmode(GPIO.BOARD) 
+switch1 = 7 
+switch2 = 8 
+led1 = 11 
+led2 = 12 
+GPIO.setup(switch1, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
+GPIO.setup(switch2, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
+GPIO.setup(led1, GPIO.OUT) 
+GPIO.setup(led2, GPIO.OUT) 
+try: 
+    while True: 
+        if GPIO.input(switch1) == False: 
+            GPIO.output(led1, True) 
+            print("LED 1 ON") 
+        else: 
+            GPIO.output(led1, False) 
+        if GPIO.input(switch2) == False: 
+            GPIO.output(led2, True) 
+            print("LED 2 ON") 
+        else: 
+            GPIO.output(led2, False) 
+        time.sleep(0.1) 
+except KeyboardInterrupt: 
+    GPIO.cleanup() 
+ 
+c) Flash LED with ON-time and OFF-time cycle from file 
+import RPi.GPIO as GPIO 
+import time 
+GPIO.setmode(GPIO.BOARD) 
+led = 11 
+GPIO.setup(led, GPIO.OUT) 
+# Read on/off time from file 
+file = open("times.txt", "r") 
+on_time = float(file.readline()) 
+off_time = float(file.readline()) 
+file.close() 
+print("ON time =", on_time) 
+print("OFF time =", off_time) 
+try: 
+    while True: 
+        GPIO.output(led, True) 
+        time.sleep(on_time) 
+        GPIO.output(led, False) 
+        time.sleep(off_time) 
+except KeyboardInterrupt: 
+    GPIO.cleanup() 
+
+
+

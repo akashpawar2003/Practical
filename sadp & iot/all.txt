@@ -1,0 +1,2226 @@
+Slip 1: 
+Q1: 
+Java Program 
+import java.io.*; 
+class LowerCaseInputStream extends FilterInputStream { 
+    public LowerCaseInputStream(InputStream in) { 
+        super(in); 
+    } 
+    @Override 
+    public int read() throws IOException { 
+        int c = super.read(); 
+        return (c == -1 ? c : Character.toLowerCase((char) c)); 
+    } 
+    @Override 
+    public int read(byte[] b, int off, int len) throws IOException { 
+        int result = super.read(b, off, len); 
+        if (result != -1) { 
+            for (int i = off; i < off + result; i++) { 
+                b[i] = (byte) Character.toLowerCase((char) b[i]); 
+            } 
+        } 
+        return result; 
+    } 
+} 
+public class LowerCaseDecoratorDemo { 
+    public static void main(String[] args) throws Exception { 
+        String text = "HELLO JAVA DECORATOR PATTERN!"; 
+        InputStream input = new ByteArrayInputStream(text.getBytes()); 
+        InputStream lower = new LowerCaseInputStream(input); 
+        int c; 
+        while ((c = lower.read()) != -1) { 
+            System.out.print((char) c); 
+        } 
+    } 
+} 
+ 
+Q2 
+#include "WiFi.h" 
+void setup() { 
+  Serial.begin(115200); 
+  delay(1000); 
+  Serial.println("WiFi Network Scanner"); 
+} 
+void loop() { 
+  Serial.println("Scanning for available WiFi networks..."); 
+  int n = WiFi.scanNetworks(); 
+  if (n == 0) { 
+    Serial.println("No networks found!"); 
+  } else { 
+    Serial.println(String(n) + " networks found:"); 
+    for (int i = 0; i < n; ++i) { 
+      Serial.print(i + 1); 
+      Serial.print(") "); 
+      Serial.print(WiFi.SSID(i)); 
+      Serial.print("  Signal: "); 
+      Serial.print(WiFi.RSSI(i)); 
+      Serial.print(" dBm  Encryption: "); 
+      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? "Open" : "Secure"); 
+      delay(10); 
+    } 
+  } 
+ 
+  Serial.println("------------------------------------"); 
+  delay(5000);  
+} 
+ 
+
+
+
+
+ 
+Slip no 2 
+
+
+
+
+Q1 
+// Thread-safe Singleton Class 
+class Singleton { 
+    private static volatile Singleton instance; 
+    private Singleton() { 
+        System.out.println("Singleton instance created."); 
+    } 
+    public static Singleton getInstance() { 
+        if (instance == null) {             // First check 
+            synchronized (Singleton.class) { 
+                if (instance == null) {     // Second check 
+                    instance = new Singleton(); 
+                } 
+            } 
+        } 
+        return instance; 
+    } 
+    public void showMessage() { 
+        System.out.println("Hello from Singleton!"); 
+    } 
+} 
+// Testing Singleton with Threads 
+public class Main { 
+    public static void main(String[] args) { 
+ 
+        Runnable task = () -> { 
+            Singleton obj = Singleton.getInstance(); 
+            obj.showMessage(); 
+        }; 
+        Thread t1 = new Thread(task); 
+        Thread t2 = new Thread(task); 
+        Thread t3 = new Thread(task); 
+        t1.start(); 
+        t2.start(); 
+        t3.start(); 
+    } 
+} 
+ 
+Q2 
+int trigPin = 9; 
+int echoPin = 10; 
+int ledPin  = 7; 
+long duration; 
+int distance; 
+void setup() { 
+  pinMode(trigPin, OUTPUT); 
+  pinMode(echoPin, INPUT); 
+  pinMode(ledPin, OUTPUT); 
+  Serial.begin(9600); 
+} 
+void loop() { 
+// Trigger the sensor 
+digitalWrite(trigPin, LOW); 
+delayMicroseconds(2); 
+digitalWrite(trigPin, HIGH); 
+delayMicroseconds(10); 
+digitalWrite(trigPin, LOW); 
+// Read echo time 
+duration = pulseIn(echoPin, HIGH); 
+// Calculate distance (cm) 
+distance = duration * 0.034 / 2; 
+Serial.print("Distance: "); 
+Serial.print(distance); 
+Serial.println(" cm"); 
+// Blink LED if object is close 
+if (distance < 15) { 
+digitalWrite(ledPin, HIGH); 
+delay(200); 
+digitalWrite(ledPin, LOW); 
+delay(200); 
+} else { 
+digitalWrite(ledPin, LOW); 
+} 
+} 
+
+
+ 
+Slip 3 : ////////////////////////////////
+
+
+ 
+Slip no 3 
+Q1 
+import java.util.Observable; 
+// Weather Data class 
+class WeatherData extends Observable { 
+    private float temperature; 
+    private float humidity; 
+    private float pressure; 
+    public WeatherData() {} 
+    public void measurementsChanged() { 
+        setChanged();            // Marks that object has changed 
+        notifyObservers();       // Notify observers 
+    } 
+    public void setMeasurements(float temperature, float humidity, float pressure) { 
+        this.temperature = temperature; 
+        this.humidity = humidity; 
+        this.pressure = pressure; 
+        measurementsChanged(); 
+    } 
+    // Getter methods 
+    public float getTemperature() { 
+        return temperature; 
+    } 
+    public float getHumidity() { 
+        return humidity; 
+    } 
+    public float getPressure() { 
+        return pressure; 
+    } 
+} 
+// An example Observer (Display Unit) 
+import java.util.Observable; 
+import java.util.Observer; 
+class CurrentDisplay implements Observer { 
+    private float temperature; 
+    private float humidity; 
+    public void update(Observable o, Object arg) { 
+        if (o instanceof WeatherData) { 
+            WeatherData data = (WeatherData) o; 
+            this.temperature = data.getTemperature(); 
+            this.humidity = data.getHumidity(); 
+            display(); 
+        } 
+    } 
+    public void display() { 
+        System.out.println("Current conditions: " + temperature  
+                           + "°C and Humidity: " + humidity + "%"); 
+    } 
+} 
+// Test Program 
+public class Main { 
+    public static void main(String[] args) { 
+        WeatherData weatherData = new WeatherData(); 
+        CurrentDisplay display = new CurrentDisplay(); 
+        weatherData.addObserver(display); 
+        weatherData.setMeasurements(30.5f, 70f, 1010f); 
+        weatherData.setMeasurements(32.2f, 60f, 1008f); 
+    } 
+} 
+ 
+Q2 
+int sensorPin = 3;     // Vibration sensor output 
+int ledPin = 13;       // On-board LED 
+void setup() { 
+  pinMode(sensorPin, INPUT); 
+  pinMode(ledPin, OUTPUT); 
+  Serial.begin(9600); 
+} 
+void loop() { 
+  int value = digitalRead(sensorPin); 
+  if (value == HIGH) {         // Vibration detected 
+    digitalWrite(ledPin, HIGH); 
+    Serial.println("Vibration Detected!"); 
+    delay(200); 
+  } else { 
+    digitalWrite(ledPin, LOW); 
+  } 
+  delay(100);} 
+
+
+Slip :- 
+S4///////////////////////////
+
+
+
+
+
+Slip 4 : 
+Q.1 Write a Java Program to implement Factory method for Pizza Store with createPizza(), 
+orederPizza(), prepare(), Bake(), cut(), box(). Use this to create variety of pizza’s like 
+NyStyleCheesePizza, ChicagoStyleCheesePizza etc. 
+1. Pizza Interface 
+java 
+Copy code 
+public interface Pizza { 
+void prepare(); 
+void bake(); 
+void cut(); 
+void box(); 
+} 
+2. Concrete Pizza Classes 
+Each specific pizza will implement the Pizza interface. 
+NyStyleCheesePizza.java 
+java 
+Copy code 
+public class NyStyleCheesePizza implements Pizza { 
+    @Override 
+    public void prepare() { 
+        System.out.println("Preparing New York Style Cheese Pizza..."); 
+    } 
+ 
+    @Override 
+    public void bake() { 
+        System.out.println("Baking New York Style Cheese Pizza..."); 
+    } 
+ 
+    @Override 
+    public void cut() { 
+        System.out.println("Cutting New York Style Cheese Pizza..."); 
+    } 
+ 
+    @Override 
+    public void box() { 
+        System.out.println("Boxing New York Style Cheese Pizza..."); 
+    } 
+} 
+ChicagoStyleCheesePizza.java 
+java 
+Copy code 
+public class ChicagoStyleCheesePizza implements Pizza { 
+    @Override 
+    public void prepare() { 
+        System.out.println("Preparing Chicago Style Cheese Pizza..."); 
+    } 
+ 
+    @Override 
+    public void bake() { 
+        System.out.println("Baking Chicago Style Cheese Pizza..."); 
+    } 
+ 
+    @Override 
+    public void cut() { 
+        System.out.println("Cutting Chicago Style Cheese Pizza..."); 
+    } 
+ 
+    @Override 
+    public void box() { 
+        System.out.println("Boxing Chicago Style Cheese Pizza..."); 
+    } 
+} 
+3. PizzaStore Class with Factory Method 
+The PizzaStore class will have a createPizza() method that is overridden by subclasses to 
+create different types of pizzas. 
+java 
+Copy code 
+public abstract class PizzaStore { 
+// The orderPizza() method is the factory method that creates a pizza 
+public Pizza orderPizza(String type) { 
+Pizza pizza = createPizza(type);  // Factory method 
+pizza.prepare(); 
+pizza.bake(); 
+pizza.cut(); 
+pizza.box(); 
+return pizza; 
+} 
+// This method will be overridden by subclasses to create specific pizza 
+types 
+protected abstract Pizza createPizza(String type); 
+} 
+4. Concrete Pizza Store Subclasses 
+We can now create specific pizza stores (like NyPizzaStore and ChicagoPizzaStore) that will 
+implement the createPizza() method to create specific types of pizzas. 
+NyPizzaStore.java 
+java 
+Copy code 
+public class NyPizzaStore extends PizzaStore { 
+@Override 
+protected Pizza createPizza(String type) { 
+if (type.equals("cheese")) { 
+return new NyStyleCheesePizza(); 
+} else { 
+// Add other pizza types as needed 
+return null; 
+} 
+} 
+} 
+ChicagoPizzaStore.java 
+java 
+Copy code 
+public class ChicagoPizzaStore extends PizzaStore { 
+@Override 
+protected Pizza createPizza(String type) { 
+if (type.equals("cheese")) { 
+return new ChicagoStyleCheesePizza(); 
+} else { 
+// Add other pizza types as needed 
+return null; 
+} 
+} 
+} 
+5. Main Class to Test 
+Now, let's implement a Main class to test the pizza store ordering process. 
+java 
+Copy code 
+public class Main { 
+public static void main(String[] args) { 
+// Create a New York Pizza Store 
+PizzaStore nyPizzaStore = new NyPizzaStore(); 
+// Order a Cheese Pizza from New York Pizza Store 
+Pizza nyPizza = nyPizzaStore.orderPizza("cheese"); 
+System.out.println("\n-----\n"); 
+// Create a Chicago Pizza Store 
+PizzaStore chicagoPizzaStore = new ChicagoPizzaStore(); 
+// Order a Cheese Pizza from Chicago Pizza Store 
+Pizza chicagoPizza = chicagoPizzaStore.orderPizza("cheese"); 
+} 
+} 
+Output: 
+mathematica 
+Copy code 
+Preparing New York Style Cheese Pizza... 
+Baking New York Style Cheese Pizza... 
+Cutting New York Style Cheese Pizza... 
+Boxing New York Style Cheese Pizza... ----- 
+Preparing Chicago Style Cheese Pizza... 
+Baking Chicago Style Cheese Pizza... 
+Cutting Chicago Style Cheese Pizza... 
+Boxing Chicago Style Cheese Pizza... 
+
+
+
+
+
+Q.2 Write a program to sense a finger when it is placed on the board Arduino. 
+[15 M] 
+// Define the pin for the capacitive touch sensor 
+const int touchPin = 7;  // Pin connected to the SIG (signal) of the TTP223 
+sensor 
+const int ledPin = 13;    // Pin connected to the LED 
+void setup() { 
+// Set the touch sensor pin as input 
+pinMode(touchPin, INPUT); 
+// Set the LED pin as output 
+pinMode(ledPin, OUTPUT); 
+ 
+  // Start serial communication for debugging 
+  Serial.begin(9600); 
+} 
+ 
+void loop() { 
+  // Read the state of the touch sensor 
+  int touchState = digitalRead(touchPin); 
+ 
+  // If the sensor detects a touch (HIGH state) 
+  if (touchState == HIGH) { 
+    digitalWrite(ledPin, HIGH);  // Turn on the LED 
+    Serial.println("Finger detected! LED ON"); 
+  } else { 
+    digitalWrite(ledPin, LOW);   // Turn off the LED 
+    Serial.println("No finger detected. LED OFF"); 
+  } 
+ 
+  // Small delay for stability 
+  delay(100); 
+} 
+
+
+
+ 
+Slip 5 : 
+ 
+Q.1 Write a Java Program to implement Adapter pattern for Enumeration iterator 
+ 
+  
+import java.util.Enumeration; 
+import java.util.Iterator; 
+import java.util.Vector; 
+ 
+// Adapter class that adapts Enumeration to Iterator 
+class EnumerationIteratorAdapter<T> implements Iterator<T> { 
+    private Enumeration<T> enumeration; 
+ 
+    // Constructor 
+    public EnumerationIteratorAdapter(Enumeration<T> enumeration) { 
+        this.enumeration = enumeration; 
+    } 
+ 
+    // hasNext() method from Iterator 
+    @Override 
+    public boolean hasNext() { 
+        return enumeration.hasMoreElements(); 
+    } 
+ 
+    // next() method from Iterator 
+    @Override 
+    public T next() { 
+        return enumeration.nextElement(); 
+    } 
+ 
+    // remove() method from Iterator is unsupported for Enumeration 
+    @Override 
+    public void remove() { 
+        throw new UnsupportedOperationException("Remove not supported."); 
+    } 
+} 
+ 
+public class AdapterPatternExample { 
+    public static void main(String[] args) { 
+        // Creating a Vector and populating it with some data 
+        Vector<String> vector = new Vector<>(); 
+        vector.add("Element1"); 
+        vector.add("Element2"); 
+        vector.add("Element3"); 
+ 
+        // Getting an Enumeration from the Vector 
+        Enumeration<String> enumeration = vector.elements(); 
+ 
+        // Adapting Enumeration to Iterator 
+        Iterator<String> iterator = new EnumerationIteratorAdapter<>(enumeration); 
+ 
+        // Using the adapted Iterator 
+        System.out.println("Using Enumeration adapted to Iterator:"); 
+        while (iterator.hasNext()) { 
+            System.out.println(iterator.next()); 
+        } 
+    } 
+} 
+ 
+ 
+ 
+Q.2 Write a program to connect with the available Wi-Fi using Arduino. 
+ 
+ 
+#include <ESP8266WiFi.h> // Use <WiFi.h> for ESP32 
+ 
+// Replace with your network credentials 
+const char* ssid = "your_SSID"; 
+const char* password = "your_PASSWORD"; 
+ 
+void setup() { 
+  Serial.begin(115200); 
+  delay(10); 
+ 
+  // Connect to Wi-Fi network 
+  Serial.println(); 
+  Serial.print("Connecting to "); 
+  Serial.println(ssid); 
+ 
+  WiFi.begin(ssid, password); 
+ 
+  while (WiFi.status() != WL_CONNECTED) { 
+    delay(500); 
+    Serial.print("."); 
+  } 
+ 
+  Serial.println(""); 
+  Serial.println("Wi-Fi connected successfully."); 
+  Serial.println("IP address: "); 
+  Serial.println(WiFi.localIP()); 
+} 
+ 
+void loop() { 
+  // Your code here (e.g., HTTP requests, etc.) 
+} 
+
+
+
+Slip 6 
+
+Slip no 6 
+Q1 
+interface Command { 
+    void execute(); 
+    void undo(); 
+} 
+class Light { 
+    public void on() { 
+        System.out.println("Light is ON"); 
+    } 
+    public void off() { 
+        System.out.println("Light is OFF"); 
+    } 
+} 
+ 
+class LightOnCommand implements Command { 
+    Light light; 
+    public LightOnCommand(Light light) { 
+        this.light = light; 
+    } 
+    public void execute() { 
+        light.on(); 
+    } 
+    public void undo() { 
+        light.off(); 
+    } 
+} 
+ 
+class LightOffCommand implements Command { 
+    Light light; 
+    public LightOffCommand(Light light) { 
+        this.light = light; 
+    } 
+    public void execute() { 
+        light.off(); 
+    } 
+    public void undo() { 
+        light.on(); 
+    } 
+} 
+class RemoteControl { 
+    private Command slot; 
+ 
+    public void setCommand(Command command) { 
+        slot = command; 
+    } 
+ 
+    public void pressButton() { 
+        slot.execute(); 
+    } 
+    public void pressUndo() { 
+     slot.undo(); 
+
+
+
+
+
+Q2. 
+int sensorPin = A0;     
+int ledPin = 13; 
+f
+ loat temperature; 
+void setup() { 
+Serial.begin(9600); 
+pinMode(ledPin, OUTPUT); 
+} 
+void loop() { 
+int sensorValue = analogRead(sensorPin); 
+temperature = (sensorValue * 5.0 * 100.0) / 1023; 
+Serial.print("Temperature: "); 
+Serial.print(temperature); 
+Serial.println(" °C"); 
+if (temperature > 30) { 
+Serial.println("ALERT: High Temperature Detected!"); 
+digitalWrite(ledPin, HIGH); 
+} else { 
+digitalWrite(ledPin, LOW); 
+} 
+delay(500); 
+} 
+
+
+
+
+Slip 7  
+
+
+
+
+Slip no 7 
+Q1 
+class CeilingFan { 
+    public static final int HIGH = 3; 
+    public static final int MEDIUM = 2; 
+    public static final int LOW = 1; 
+    public static final int OFF = 0; 
+    private int speed; 
+    public CeilingFan() { 
+        speed = OFF; 
+    } 
+    public void high() { 
+        speed = HIGH; 
+        System.out.println("Fan speed set to HIGH"); 
+    } 
+    public void medium() { 
+        speed = MEDIUM; 
+        System.out.println("Fan speed set to MEDIUM"); 
+    } 
+    public void low() { 
+        speed = LOW; 
+        System.out.println("Fan speed set to LOW"); 
+    } 
+    public void off() { 
+        speed = OFF; 
+        System.out.println("Fan turned OFF"); 
+    } 
+    public int getSpeed() { 
+        return speed; 
+    } 
+} 
+// Command Interface 
+interface Command { 
+    void execute(); 
+    void undo(); 
+} 
+// Concrete Commands 
+class FanHighCommand implements Command { 
+    CeilingFan fan; 
+    int prevSpeed; 
+    public FanHighCommand(CeilingFan fan) { 
+        this.fan = fan; 
+    } 
+    public void execute() { 
+        prevSpeed = fan.getSpeed(); 
+        fan.high(); 
+    } 
+    public void undo() { 
+        if (prevSpeed == CeilingFan.MEDIUM) fan.medium(); 
+        else if (prevSpeed == CeilingFan.LOW) fan.low(); 
+        else if (prevSpeed == CeilingFan.OFF) fan.off(); 
+    } 
+} 
+class FanOffCommand implements Command { 
+    CeilingFan fan; 
+    int prevSpeed; 
+    public FanOffCommand(CeilingFan fan) { 
+        this.fan = fan; 
+    } 
+    public void execute() { 
+        prevSpeed = fan.getSpeed(); 
+        fan.off(); 
+    } 
+ 
+    public void undo() { 
+        if (prevSpeed == CeilingFan.HIGH) fan.high(); 
+        else if (prevSpeed == CeilingFan.MEDIUM) fan.medium(); 
+        else if (prevSpeed == CeilingFan.LOW) fan.low(); 
+    } 
+} 
+// Invoker 
+class RemoteControl { 
+    Command slot; 
+    public void setCommand(Command command) { 
+        slot = command; 
+    } 
+    public void pressButton() { 
+        slot.execute(); 
+    } 
+    public void pressUndo() { 
+        slot.undo(); 
+    } 
+} 
+// Test Class 
+public class Main { 
+    public static void main(String[] args) { 
+        RemoteControl remote = new RemoteControl(); 
+        CeilingFan fan = new CeilingFan(); 
+        Command high = new FanHighCommand(fan); 
+        Command off = new FanOffCommand(fan); 
+        remote.setCommand(high); 
+        remote.pressButton();  // Fan High 
+        remote.pressUndo();    // Undo → previous state 
+        remote.setCommand(off); 
+        remote.pressButton();  // Fan Off 
+        remote.pressUndo();    // Undo → previous speed 
+    } 
+} 
+ 
+ 
+ 
+ 
+ 
+ 
+Q2 
+int ldrPin = A0;   // LDR input 
+int ledPin = 9;    // LED output (PWM) 
+void setup() { 
+Serial.begin(9600); 
+} 
+void loop() { 
+int ldrValue = analogRead(ldrPin);     // read LDR (0-1023) 
+int brightness = map(ldrValue, 0, 1023, 255, 0);  
+// More light → LED dim 
+// Less light → LED bright 
+analogWrite(ledPin, brightness);        
+Serial.print("LDR Value: "); 
+Serial.print(ldrValue); 
+Serial.print("  LED Brightness: "); 
+Serial.println(brightness); 
+delay(200);} 
+
+
+
+
+
+
+
+Slip 8 
+
+
+
+
+interface State {
+    void insertQuarter();
+    void turnCrank();
+    void dispense();
+}
+
+class NoQuarterState implements State {
+    GumballMachine g;
+    NoQuarterState(GumballMachine g){ this.g = g; }
+
+    public void insertQuarter(){
+        System.out.println("Quarter inserted");
+        g.setState(g.hasQuarter);
+    }
+    public void turnCrank(){ System.out.println("Insert quarter first"); }
+    public void dispense(){ System.out.println("No gumball"); }
+}
+
+class HasQuarterState implements State {
+    GumballMachine g;
+    HasQuarterState(GumballMachine g){ this.g = g; }
+
+    public void insertQuarter(){ System.out.println("Already inserted"); }
+    public void turnCrank(){
+        System.out.println("Crank turned");
+        g.setState(g.sold);
+    }
+    public void dispense(){ System.out.println("No gumball dispensed"); }
+}
+
+class SoldState implements State {
+    GumballMachine g;
+    SoldState(GumballMachine g){ this.g = g; }
+
+    public void insertQuarter(){ System.out.println("Wait..."); }
+    public void turnCrank(){ System.out.println("Already turned"); }
+    public void dispense(){
+        System.out.println("Gumball released");
+        g.count--;
+        if(g.count > 0) g.setState(g.noQuarter);
+        else g.setState(g.soldOut);
+    }
+}
+
+class SoldOutState implements State {
+    GumballMachine g;
+    SoldOutState(GumballMachine g){ this.g = g; }
+
+    public void insertQuarter(){ System.out.println("Sold out"); }
+    public void turnCrank(){ System.out.println("Sold out"); }
+    public void dispense(){ System.out.println("No gumball"); }
+}
+
+public class GumballMachine {
+    State noQuarter, hasQuarter, sold, soldOut, state;
+    int count;
+
+    public GumballMachine(int count){
+        this.count = count;
+        noQuarter = new NoQuarterState(this);
+        hasQuarter = new HasQuarterState(this);
+        sold = new SoldState(this);
+        soldOut = new SoldOutState(this);
+        state = (count > 0) ? noQuarter : soldOut;
+    }
+
+    void setState(State s){ state = s; }
+    public void insertQuarter(){ state.insertQuarter(); }
+    public void turnCrank(){ state.turnCrank(); state.dispense(); }
+
+    public static void main(String[] args){
+        GumballMachine g = new GumballMachine(2);
+        g.insertQuarter();
+        g.turnCrank();
+        g.insertQuarter();
+        g.turnCrank();
+    }
+}
+
+
+Q2 Q.2 Start Raspberry Pi and execute various Linux commands in command terminal 
+window:  
+ls, cd, touch, mv, rm, man, mkdir, rmdir, tar, gzip, cat, more, less, ps, 
+sudo, cron, chown,  
+chgrp, pingetc. 
+Step 1: Power on and Set Up the Raspberry Pi 
+1. Connect the Raspberry Pi to a monitor, keyboard, and mouse. 
+2. Insert the microSD card with Raspberry Pi OS (or another Linux OS) installed. 
+3. Power on the Raspberry Pi by connecting it to a power source. 
+Once booted, log into the Raspberry Pi desktop environment or terminal. 
+Step 2: Open the Terminal 
+ Open the terminal application from the desktop or press Ctrl + Alt + T. 
+Step 3: Execute Common Linux Commands 
+You can try executing the following commands, which are commonly used for file and system 
+management in Linux. Here’s a brief explanation and example usage of each: 
+1. ls - List files and directories in the current directory. 
+bash 
+Copy code 
+ls 
+ls -la  # List all files with details 
+2. cd - Change the directory. 
+bash 
+Copy code 
+cd /home/pi   # Navigate to the /home/pi directory 
+cd ..         # Move up one directory 
+3. touch - Create a new, empty file. 
+bash 
+Copy code 
+touch example.txt 
+4. mv - Move or rename a file or directory. 
+bash 
+Copy code 
+mv example.txt new_example.txt  # Rename 
+mv new_example.txt /home/pi/Documents  # Move to another directory 
+5. rm - Remove files or directories. 
+bash 
+Copy code 
+rm new_example.txt  # Remove a file 
+rm -r /home/pi/Documents/old_folder  # Remove a directory and its 
+contents 
+6. man - Display the manual for a command. 
+bash 
+Copy code 
+man ls  # Show manual for ls command 
+7. mkdir - Create a new directory. 
+bash 
+Copy code 
+mkdir new_folder 
+8. rmdir - Remove an empty directory. 
+bash 
+Copy code 
+rmdir new_folder 
+9. tar - Archive files. 
+bash 
+Copy code 
+tar -cvf archive.tar /home/pi/Documents  # Create an archive 
+tar -xvf archive.tar  # Extract the archive 
+10. gzip - Compress a file with gzip. 
+bash 
+Copy code 
+gzip archive.tar  # Compress the file 
+gunzip archive.tar.gz  # Decompress the file 
+11. cat - Display contents of a file. 
+bash 
+Copy code 
+cat example.txt 
+12. more and less - Display file contents page by page. 
+bash 
+Copy code 
+more example.txt 
+less example.txt 
+13. ps - Display currently running processes. 
+bash 
+Copy code 
+ps aux  # Show all processes 
+14. sudo - Execute a command with superuser privileges. 
+bash 
+Copy code 
+sudo apt update  # Update package lists as root 
+15. cron - Schedule recurring tasks (edit with crontab). 
+bash 
+Copy code 
+crontab -e  # Edit crontab to schedule a task 
+16. chown - Change ownership of a file or directory. 
+bash 
+Copy code 
+sudo chown pi:pi example.txt  # Change owner to user 'pi' 
+17. chgrp - Change the group ownership of a file or directory. 
+bash 
+Copy code 
+sudo chgrp staff example.txt  # Change group to 'staff' 
+18. ping - Check network connectivity. 
+bash 
+Copy code 
+ping google.com  # Ping Google to check internet connection 
+Tips for Running Commands 
+ Run man <command> to learn more about each command and its options. 
+ Use sudo carefully as it grants administrator privileges. 
+ Practice with caution when using commands like rm, chown, or chmod, as they can alter 
+system files. 
+
+
+
+
+
+Slip 9
+
+
+
+Slip 9: 
+Q1: 
+package com.hr; 
+public class Employee { 
+    private int id; 
+    private String name; 
+    private double salary; 
+    public Employee() {} 
+    public Employee(int id, String name, double salary) { 
+        this.id = id; 
+        this.name = name; 
+        this.salary = salary; 
+    } 
+    public void display() { 
+        System.out.println("Employee ID   : " + id); 
+        System.out.println("Employee Name : " + name); 
+        System.out.println("Salary        : " + salary); 
+    } 
+    public void setId(int id) { this.id = id; } 
+    public void setName(String name) { this.name = name; } 
+    public void setSalary(double salary) { this.salary = salary; } 
+} 
+ 
+//HrService.java 
+package com.hr; 
+public class HRService { 
+    private Employee employee; 
+    public void setEmployee(Employee employee) { 
+        this.employee = employee; 
+    } 
+    public void showEmployeeDetails() { 
+        System.out.println("\n--- HR Application ---"); 
+        employee.display(); 
+    } 
+} 
+ 
+//applicationContext.html 
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd"> 
+    <bean id="employee" class="com.hr.Employee"> 
+        <property name="id" value="101"/> 
+        <property name="name" value="Vaishnavi"/> 
+        <property name="salary" value="50000"/> 
+    </bean> 
+    <bean id="hrService" class="com.hr.HRService"> 
+        <property name="employee" ref="employee"/> 
+    </bean> 
+</beans> 
+ 
+//MainApp.java 
+package com.hr; 
+import org.springframework.context.ApplicationContext; 
+import org.springframework.context.support.ClassPathXmlApplicationContext; 
+public class MainApp { 
+    public static void main(String[] args) { 
+        ApplicationContext context = 
+                new ClassPathXmlApplicationContext("applicationContext.xml"); 
+        HRService service = (HRService) context.getBean("hrService"); 
+        service.showEmployeeDetails(); 
+    } 
+} 
+ 
+Q2: 
+(a) Read your name and print Hello message 
+name = input("Enter your name: ") 
+print("Hello", name) 
+ 
+(b) Read two numbers and print sum, difference, product, division 
+a = float(input("Enter first number: ")) 
+b = float(input("Enter second number: ")) 
+print("Sum =", a + b) 
+print("Difference =", a - b) 
+print("Product =", a * b) 
+if b != 0: 
+    print("Division =", a / b) 
+else: 
+print("Division not possible") 
+(c) Word and Character Count of a string 
+text = input("Enter a string: ") 
+words = text.split() 
+word_count = len(words) 
+char_count = len(text) 
+print("Words =", word_count) 
+print("Characters =", char_count) 
+(d) Area of a given shape 
+shape = input("Enter shape (rectangle/triangle/circle): ") 
+if shape == "rectangle": 
+l = float(input("Enter length: ")) 
+b = float(input("Enter breadth: ")) 
+print("Area =", l * b) 
+elif shape == "triangle": 
+b = float(input("Enter base: ")) 
+h = float(input("Enter height: ")) 
+print("Area =", 0.5 * b * h) 
+elif shape == "circle": 
+r = float(input("Enter radius: ")) 
+print("Area =", 3.14 * r * r) 
+else: 
+print("Invalid shape") 
+
+
+
+
+
+Slip 10
+
+
+
+
+
+Slip 10: 
+Q1: 
+FlyBehavior.java 
+public interface FlyBehavior { 
+    void fly(); 
+} 
+QuackBehavior.java 
+public interface QuackBehavior { 
+    void quack(); 
+} 
+Flying behaviors 
+public class FlyWithWings implements FlyBehavior { 
+    public void fly() { 
+        System.out.println("I am flying with wings!"); 
+    } 
+} 
+public class FlyNoWay implements FlyBehavior { 
+    public void fly() { 
+        System.out.println("I cannot fly."); 
+    } 
+} 
+Quacking behaviors 
+public class Quack implements QuackBehavior { 
+    public void quack() { 
+        System.out.println("Quack! Quack!"); 
+    } 
+} 
+public class MuteQuack implements QuackBehavior { 
+    public void quack() { 
+        System.out.println("<< Silence >>"); 
+    } 
+} 
+Duck.java 
+public abstract class Duck { 
+    FlyBehavior flyBehavior; 
+    QuackBehavior quackBehavior; 
+    public void performFly() { 
+        flyBehavior.fly(); 
+    } 
+    public void performQuack() { 
+        quackBehavior.quack(); 
+    } 
+    public void swim() { 
+        System.out.println("All ducks float."); 
+    } 
+    public void setFlyBehavior(FlyBehavior fb) { 
+        flyBehavior = fb; 
+    } 
+    public void setQuackBehavior(QuackBehavior qb) { 
+        quackBehavior = qb; 
+    } 
+ 
+    public abstract void display(); 
+} 
+MallardDuck.java 
+public class MallardDuck extends Duck { 
+    public MallardDuck() { 
+        flyBehavior = new FlyWithWings(); 
+        quackBehavior = new Quack(); 
+    } 
+    public void display() { 
+        System.out.println("I am a Mallard Duck!"); 
+    } 
+} 
+DuckTest.java 
+public class DuckTest { 
+    public static void main(String[] args) { 
+        Duck duck = new MallardDuck(); 
+        duck.display(); 
+        duck.performFly(); 
+        duck.performQuack(); 
+        duck.setFlyBehavior(new FlyNoWay()); 
+        System.out.println("Changing fly behavior..."); 
+        duck.performFly(); 
+    } 
+} 
+Q2: 
+a) Print a name ‘n’ times using for loop & while loop 
+name = input("Enter name: ") 
+n = int(input("Enter n: ")) 
+print("Using for loop:") 
+for i in range(n): 
+print(name) 
+print("Using while loop:") 
+i = 0 
+while i < n: 
+print(name) 
+i += 1 
+b) Handle Divide by Zero Exception 
+try: 
+a = int(input("Enter numerator: ")) 
+b = int(input("Enter denominator: ")) 
+print("Result =", a / b) 
+except ZeroDivisionError: 
+print("Error: Division by zero not allowed.") 
+c) Print current time 10 times with 10 seconds interval 
+import time 
+for i in range(10): 
+print("Current Time:", time.ctime()) 
+t
+ ime.sleep(10) 
+d) Read a file line by line and print word count of each line 
+f
+ ile = open("sample.txt", "r") 
+for line in file: 
+words = line.split() 
+print("Line:", line.strip()) 
+print("Word Count:", len(words)) 
+f
+ ile.close() 
+
+
+
+
+
+
+
+Slip 11: 
+Q1: 
+1) BeatModelInterface.java 
+ 
+public interface BeatModelInterface { 
+    int getBeatPerMinute(); 
+    void initialize(); 
+} 
+ 
+2) HeartModel.java (Adaptee) 
+public class HeartModel { 
+    private int heartRate; 
+    public HeartModel(int heartRate) { 
+        this.heartRate = heartRate; 
+    } 
+    public int getHeartRate() { 
+        return heartRate; 
+    } 
+    public void start() { 
+        System.out.println("Heart Model Started..."); 
+    } 
+} 
+ 
+ 3) HeartAdapter.java (Adapter) 
+public class HeartAdapter implements BeatModelInterface { 
+    private HeartModel heart; 
+    public HeartAdapter(HeartModel heart) { 
+        this.heart = heart; 
+    } 
+    @Override 
+    public int getBeatPerMinute() { 
+        return heart.getHeartRate();   
+    } 
+    @Override 
+    public void initialize() { 
+        heart.start();    
+    } 
+} 
+4) Main.java (Client Code) 
+public class Main { 
+public static void main(String[] args) { 
+HeartModel heart = new HeartModel(72); 
+BeatModelInterface beatModel = new HeartAdapter(heart); 
+beatModel.initialize(); 
+System.out.println("Beat Per Minute : " + beatModel.getBeatPerMinute()); 
+} 
+} 
+Q.2  
+a) Light an LED through Python program 
+import RPi.GPIO as GPIO 
+import time 
+GPIO.setmode(GPIO.BOARD) 
+led = 11 
+GPIO.setup(led, GPIO.OUT) 
+GPIO.output(led, True) 
+print("LED ON") 
+t
+ ime.sleep(5) 
+GPIO.output(led, False) 
+print("LED OFF") 
+GPIO.cleanup() 
+b) Input from two switches and turn ON corresponding LEDs 
+import RPi.GPIO as GPIO 
+import time 
+GPIO.setmode(GPIO.BOARD) 
+switch1 = 7 
+switch2 = 8 
+led1 = 11 
+led2 = 12 
+GPIO.setup(switch1, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
+GPIO.setup(switch2, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
+GPIO.setup(led1, GPIO.OUT) 
+GPIO.setup(led2, GPIO.OUT) 
+try: 
+    while True: 
+        if GPIO.input(switch1) == False: 
+            GPIO.output(led1, True) 
+            print("LED 1 ON") 
+        else: 
+            GPIO.output(led1, False) 
+        if GPIO.input(switch2) == False: 
+            GPIO.output(led2, True) 
+            print("LED 2 ON") 
+        else: 
+            GPIO.output(led2, False) 
+        time.sleep(0.1) 
+except KeyboardInterrupt: 
+    GPIO.cleanup() 
+ 
+c) Flash LED with ON-time and OFF-time cycle from file 
+import RPi.GPIO as GPIO 
+import time 
+GPIO.setmode(GPIO.BOARD) 
+led = 11 
+GPIO.setup(led, GPIO.OUT) 
+# Read on/off time from file 
+file = open("times.txt", "r") 
+on_time = float(file.readline()) 
+off_time = float(file.readline()) 
+file.close() 
+print("ON time =", on_time) 
+print("OFF time =", off_time) 
+try: 
+    while True: 
+        GPIO.output(led, True) 
+        time.sleep(on_time) 
+        GPIO.output(led, False) 
+        time.sleep(off_time) 
+except KeyboardInterrupt: 
+    GPIO.cleanup() 
+
+
+
+
+Slip 12
+
+
+
+
+Q1) 
+
+
+
+
+
+
+interface Car {
+    void assemble();
+}
+
+class BasicCar implements Car {
+    public void assemble() {
+        System.out.println("Basic Car");
+    }
+}
+
+class CarDecorator implements Car {
+    protected Car car;
+    public CarDecorator(Car c) { this.car = c; }
+    public void assemble() { car.assemble(); }
+}
+
+class SportsCar extends CarDecorator {
+    public SportsCar(Car c) { super(c); }
+    public void assemble() {
+        super.assemble();
+        System.out.println("Adding features of Sports Car");
+    }
+}
+
+class LuxuryCar extends CarDecorator {
+    public LuxuryCar(Car c) { super(c); }
+    public void assemble() {
+        super.assemble();
+        System.out.println("Adding features of Luxury Car");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Car c1 = new SportsCar(new BasicCar());
+        c1.assemble();
+
+        Car c2 = new LuxuryCar(new BasicCar());
+        c2.assemble();
+    }
+}
+
+
+
+Q2)
+
+
+
+
+#include <WiFi.h>
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  delay(1000);
+
+  Serial.println("Scanning WiFi networks...");
+}
+
+void loop() {
+  int n = WiFi.scanNetworks();
+  Serial.println("Scan complete");
+
+  for (int i = 0; i < n; i++) {
+    Serial.print(i + 1);
+    Serial.print(": ");
+    Serial.print(WiFi.SSID(i));
+    Serial.print("  (Signal: ");
+    Serial.print(WiFi.RSSI(i));
+    Serial.println(" dBm)");
+  }
+
+  Serial.println("--------------------------");
+  delay(5000);
+}
+
+
+
+
+
+Slip 13 
+
+
+
+Slip 13 
+Q1. 
+class Volt { 
+    private int volts; 
+    public Volt(int volts) { 
+        this.volts = volts; 
+    } 
+    public int getVolts() { 
+        return volts; 
+    } 
+    public void setVolts(int volts) { 
+        this.volts = volts; 
+    } 
+} 
+class Socket { 
+    public Volt getVolt() { 
+        return new Volt(120); 
+    } 
+} 
+interface SocketAdapter { 
+    public Volt get3Volt(); 
+    public Volt get12Volt(); 
+    public Volt get120Volt(); 
+} 
+class SocketAdapterImpl extends Socket implements SocketAdapter { 
+ 
+    private Volt convertVolt(Volt v, int div) { 
+        return new Volt(v.getVolts() / div); 
+    } 
+    @Override 
+    public Volt get3Volt() { 
+        return convertVolt(getVolt(), 40); 
+    } 
+    @Override 
+    public Volt get12Volt() { 
+        return convertVolt(getVolt(), 10); 
+    } 
+    @Override 
+    public Volt get120Volt() { 
+        return getVolt(); 
+    } 
+} 
+public class MobileChargerTest { 
+    public static void main(String[] args) { 
+        SocketAdapter adapter = new SocketAdapterImpl(); 
+        System.out.println("Mobile Charging with: " + adapter.get3Volt().getVolts() + "V"); 
+        System.out.println("LED Light with: " + adapter.get12Volt().getVolts() + "V"); 
+        System.out.println("Home Appliance with: " + adapter.get120Volt().getVolts() + "V"); 
+    } 
+} 
+ 
+ 
+Q2 
+const int trigPin = 9; 
+const int echoPin = 10; 
+const int led = 7; 
+long duration; 
+int distance; 
+void setup() { 
+pinMode(trigPin, OUTPUT); 
+pinMode(echoPin, INPUT); 
+pinMode(led, OUTPUT); 
+Serial.begin(9600); 
+} 
+void loop() { 
+digitalWrite(trigPin, LOW); 
+delayMicroseconds(2); 
+digitalWrite(trigPin, HIGH); 
+delayMicroseconds(10); 
+digitalWrite(trigPin, LOW); 
+duration = pulseIn(echoPin, HIGH); 
+distance = duration * 0.034 / 2; 
+Serial.print("Distance: "); 
+Serial.print(distance); 
+Serial.println(" cm"); 
+if (distance < 20) { 
+digitalWrite(led, HIGH); 
+delay(200); 
+digitalWrite(led, LOW); 
+delay(200); 
+} else { 
+digitalWrite(led, LOW); 
+} 
+} 
+
+
+
+
+
+Slip 14
+
+
+
+
+
+Slip 14: 
+Q1: 
+// Command.java 
+public interface Command { 
+    void execute(); 
+} 
+//Light.java 
+public class Light { 
+    public void on() { 
+        System.out.println("Light is ON"); 
+    } 
+    public void off() { 
+        System.out.println("Light is OFF"); 
+    } 
+} 
+//GarageDoor.java 
+public class GarageDoor { 
+    public void up() { 
+        System.out.println("Garage Door is OPEN"); 
+    } 
+} 
+//Stereo.java 
+public class Stereo { 
+    public void on() { 
+        System.out.println("Stereo is ON"); 
+    } 
+    public void setCD() { 
+        System.out.println("Stereo set to CD mode"); 
+    } 
+    public void setVolume(int v) { 
+        System.out.println("Stereo volume set to " + v); 
+    } 
+} 
+//LightOnCommand.java 
+public class LightOnCommand implements Command { 
+    Light light; 
+    public LightOnCommand(Light light) { 
+        this.light = light; 
+    } 
+    public void execute() { 
+        light.on(); 
+    } 
+} 
+//LightOffCommand.java 
+public class LightOffCommand implements Command { 
+    Light light; 
+    public LightOffCommand(Light light) { 
+        this.light = light; 
+    } 
+    public void execute() { 
+        light.off(); 
+    } 
+} 
+//GarageDoorUpCommand.java 
+public class GarageDoorUpCommand implements Command { 
+    GarageDoor door; 
+    public GarageDoorUpCommand(GarageDoor door) { 
+        this.door = door; 
+    } 
+    public void execute() { 
+        door.up(); 
+    } 
+} 
+//StereoOnWithCDCommand.java 
+public class StereoOnWithCDCommand implements Command { 
+    Stereo stereo; 
+    public StereoOnWithCDCommand(Stereo stereo) { 
+        this.stereo = stereo; 
+    } 
+    public void execute() { 
+        stereo.on(); 
+        stereo.setCD(); 
+        stereo.setVolume(10); 
+    } 
+} 
+//RemoteControl.java 
+public class RemoteControl { 
+    private Command slot; 
+ public void setCommand(Command command) { 
+        slot = command; 
+    } 
+    public void buttonPressed() { 
+        slot.execute(); 
+    } 
+} 
+//Main.java 
+public class Main { 
+    public static void main(String[] args) { 
+        RemoteControl remote = new RemoteControl(); 
+        Light light = new Light(); 
+        GarageDoor garage = new GarageDoor(); 
+        Stereo stereo = new Stereo(); 
+        remote.setCommand(new LightOnCommand(light)); 
+        remote.buttonPressed(); 
+        remote.setCommand(new LightOffCommand(light)); 
+        remote.buttonPressed(); 
+        remote.setCommand(new GarageDoorUpCommand(garage)); 
+        remote.buttonPressed(); 
+        remote.setCommand(new StereoOnWithCDCommand(stereo)); 
+        remote.buttonPressed(); 
+    } 
+} 
+ 
+ 
+Q2: 
+int vibSensor = 2; 
+int led = 13; 
+void setup() { 
+pinMode(vibSensor, INPUT); 
+pinMode(led, OUTPUT); 
+Serial.begin(9600); 
+} 
+void loop() { 
+int value = digitalRead(vibSensor); 
+if (value == HIGH) {  
+Serial.println("Vibration Detected!"); 
+digitalWrite(led, HIGH); 
+}  
+else { 
+digitalWrite(led, LOW); 
+} 
+delay(200); 
+} 
+
+
+
+
+
+
+Slip 15 
+
+
+
+
+Slip 15: 
+Q1: 
+//DVDPlayer.java 
+public class DVDPlayer { 
+    public void on() { System.out.println("DVD Player ON"); } 
+    public void off() { System.out.println("DVD Player OFF"); } 
+    public void play(String movie) { 
+        System.out.println("Playing movie: " + movie); 
+    } 
+} 
+//Projector.java 
+public class Projector { 
+    public void on() { System.out.println("Projector ON"); } 
+    public void off() { System.out.println("Projector OFF"); } 
+    public void wideScreenMode() { 
+        System.out.println("Projector in Wide Screen Mode"); 
+    } 
+} 
+//Amplifier.java 
+public class Amplifier { 
+    public void on() { System.out.println("Amplifier ON"); } 
+    public void off() { System.out.println("Amplifier OFF"); } 
+    public void setVolume(int v) { 
+        System.out.println("Amplifier volume set to " + v); 
+    } 
+} 
+//Lights.java 
+public class Lights { 
+    public void dim(int value) { 
+        System.out.println("Lights dimmed to " + value + "%"); 
+    } 
+} 
+//Screen.java 
+public class Screen { 
+    public void down() { System.out.println("Screen DOWN"); } 
+    public void up() { System.out.println("Screen UP"); } 
+} 
+//HomeTheaterFacade.java 
+public class HomeTheaterFacade { 
+    private DVDPlayer dvd; 
+    private Projector projector; 
+    private Amplifier amp; 
+    private Screen screen; 
+    private Lights lights; 
+    public HomeTheaterFacade(DVDPlayer dvd, Projector projector,  
+                             Amplifier amp, Screen screen, Lights lights) { 
+        this.dvd = dvd; 
+        this.projector = projector; 
+        this.amp = amp; 
+        this.screen = screen; 
+        this.lights = lights; 
+    } 
+    public void watchMovie(String movie) { 
+        System.out.println("Get ready to watch a movie..."); 
+        lights.dim(30); 
+        screen.down(); 
+        projector.on(); 
+        projector.wideScreenMode(); 
+        amp.on(); 
+        amp.setVolume(8); 
+        dvd.on(); 
+        dvd.play(movie); 
+    } 
+public void endMovie() { 
+        System.out.println("Shutting movie theater down..."); 
+        dvd.off(); 
+        amp.off(); 
+        projector.off(); 
+        screen.up(); 
+        lights.dim(100); 
+    } 
+} 
+//Main.java 
+public class Main { 
+    public static void main(String[] args) { 
+        DVDPlayer dvd = new DVDPlayer(); 
+        Projector projector = new Projector(); 
+        Amplifier amp = new Amplifier(); 
+        Screen screen = new Screen(); 
+        Lights lights = new Lights(); 
+        HomeTheaterFacade homeTheater = 
+            new HomeTheaterFacade(dvd, projector, amp, screen, lights); 
+        homeTheater.watchMovie("Avengers Endgame"); 
+        System.out.println(); 
+        homeTheater.endMovie(); 
+    } 
+} 
+ 
+Q2. 
+Arduino Code 
+int touchPin = 2;   
+int led = 13;       
+void setup() { 
+  pinMode(touchPin, INPUT); 
+  pinMode(led, OUTPUT); 
+  Serial.begin(9600); 
+} 
+void loop() { 
+  int value = digitalRead(touchPin); 
+  if (value == HIGH) {         
+    Serial.println("Finger detected!"); 
+    digitalWrite(led, HIGH); 
+  } 
+  else { 
+digitalWrite(led, LOW); 
+} 
+delay(100); 
+} 
+
+
+
+
+
+
+Slip 16
+
+
+
+
+Q1
+
+
+import java.util.*;
+
+interface Observer {
+    void update(int number);
+}
+
+interface Subject {
+    void register(Observer o);
+    void remove(Observer o);
+    void notifyObservers();
+}
+
+class NumberSubject implements Subject {
+    private List<Observer> observers = new ArrayList<>();
+    private int number;
+
+    public void setNumber(int n){
+        this.number = n;
+        notifyObservers();
+    }
+
+    public int getNumber(){ return number; }
+
+    public void register(Observer o){ observers.add(o); }
+    public void remove(Observer o){ observers.remove(o); }
+    public void notifyObservers(){
+        for(Observer o : observers) o.update(number);
+    }
+}
+
+class HexObserver implements Observer {
+    public void update(int number){ System.out.println("Hex: " + Integer.toHexString(number)); }
+}
+
+class OctalObserver implements Observer {
+    public void update(int number){ System.out.println("Octal: " + Integer.toOctalString(number)); }
+}
+
+class BinaryObserver implements Observer {
+    public void update(int number){ System.out.println("Binary: " + Integer.toBinaryString(number)); }
+}
+
+public class Main {
+    public static void main(String[] args){
+        NumberSubject subject = new NumberSubject();
+        subject.register(new HexObserver());
+        subject.register(new OctalObserver());
+        subject.register(new BinaryObserver());
+
+        subject.setNumber(25);  // example: prints hex, octal, binary
+        subject.setNumber(100);
+    }
+}
+
+
+
+
+
+
+Q2
+
+
+
+
+#include <WiFi.h> // use <ESP8266WiFi.h> for ESP8266
+
+const char* ssid = "YOUR_SSID";
+const char* pass = "YOUR_PASSWORD";
+
+void setup(){
+  Serial.begin(115200);
+  WiFi.begin(ssid, pass);
+  Serial.print("Connecting to WiFi");
+  int tries = 0;
+  while (WiFi.status() != WL_CONNECTED && tries < 20) {
+    delay(500);
+    Serial.print(".");
+    tries++;
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println();
+    Serial.println("Connected!");
+    Serial.print("IP: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println();
+    Serial.println("Failed to connect");
+  }
+}
+
+void loop(){
+  // Nothing required for this task
+}
+
+
+
+
+
+
+Slip 17
+
+
+
+Slip no 17 
+Q1 
+interface Shape { 
+    void draw(); 
+} 
+class Rectangle implements Shape { 
+    @Override 
+    public void draw() { 
+        System.out.println("Inside Rectangle::draw() method."); 
+    } 
+} 
+class Square implements Shape { 
+    @Override 
+    public void draw() { 
+        System.out.println("Inside Square::draw() method."); 
+    } 
+} 
+class RoundedRectangle implements Shape { 
+    @Override 
+    public void draw() { 
+        System.out.println("Inside RoundedRectangle::draw() method."); 
+    } 
+} 
+class RoundedSquare implements Shape { 
+    @Override 
+    public void draw() { 
+        System.out.println("Inside RoundedSquare::draw() method."); 
+    } 
+} 
+abstract class AbstractFactory { 
+    abstract Shape getShape(String shapeType); 
+} 
+class ShapeFactory extends AbstractFactory { 
+    @Override 
+    public Shape getShape(String shapeType) { 
+        if (shapeType.equalsIgnoreCase("RECTANGLE")) { 
+            return new Rectangle(); 
+        } else if (shapeType.equalsIgnoreCase("SQUARE")) { 
+            return new Square(); 
+        } 
+        return null; 
+    } 
+} 
+class RoundedShapeFactory extends AbstractFactory { 
+    @Override 
+    public Shape getShape(String shapeType) { 
+        if (shapeType.equalsIgnoreCase("RECTANGLE")) { 
+            return new RoundedRectangle(); 
+        } else if (shapeType.equalsIgnoreCase("SQUARE")) { 
+            return new RoundedSquare(); 
+        } 
+        return null; 
+    } 
+} 
+class FactoryProducer { 
+    public static AbstractFactory getFactory(boolean rounded) { 
+        if (rounded) { 
+            return new RoundedShapeFactory(); 
+        } else { 
+            return new ShapeFactory(); 
+        } 
+    } 
+} 
+public class AbstractFactoryPatternDemo { 
+    public static void main(String[] args) { 
+        AbstractFactory shapeFactory = FactoryProducer.getFactory(false); 
+        Shape s1 = shapeFactory.getShape("RECTANGLE"); 
+        s1.draw(); 
+        Shape s2 = shapeFactory.getShape("SQUARE"); 
+        s2.draw(); 
+        AbstractFactory roundedFactory = FactoryProducer.getFactory(true); 
+        Shape s3 = roundedFactory.getShape("RECTANGLE"); 
+        s3.draw(); 
+        Shape s4 = roundedFactory.getShape("SQUARE"); 
+        s4.draw(); 
+    } 
+} 
+ 
+Q2 
+const int tempPin = A0; 
+const int ledPin = 7; 
+f
+ loat temperature; 
+void setup() { 
+pinMode(ledPin, OUTPUT); 
+Serial.begin(9600); 
+} 
+void loop() { 
+int reading = analogRead(tempPin); 
+temperature = (reading * 5.0 * 100) / 1024;  
+Serial.print("Temperature: "); 
+Serial.print(temperature); 
+Serial.println(" *C"); 
+if (temperature > 30) {    
+digitalWrite(ledPin, HIGH); 
+} else { 
+digitalWrite(ledPin, LOW); 
+} 
+delay(500); 
+} 
+
+
+
+
+
+SLip 18  
+
+
+
+
+
+Slip No 18 
+Q1 
+ 
+import java.util.Observable; 
+import java.util.Observer; 
+class WeatherData extends Observable { 
+    private float temperature; 
+    private float humidity; 
+    private float pressure; 
+    public float getTemperature() { 
+        return temperature; 
+    } 
+    public float getHumidity() { 
+        return humidity; 
+    } 
+    public float getPressure() { 
+        return pressure; 
+    } 
+  public void measurementsChanged() { 
+        setChanged();  
+        notifyObservers(); 
+    } 
+    public void setMeasurements(float temperature, float humidity, float pressure) { 
+        this.temperature = temperature; 
+        this.humidity = humidity; 
+        this.pressure = pressure; 
+        measurementsChanged(); 
+    } 
+} 
+class CurrentConditionsDisplay implements Observer { 
+    @Override 
+    public void update(Observable o, Object arg) { 
+        if (o instanceof WeatherData) { 
+            WeatherData w = (WeatherData) o; 
+            System.out.println("Current Conditions:"); 
+            System.out.println("Temperature: " + w.getTemperature()); 
+            System.out.println("Humidity: " + w.getHumidity()); 
+            System.out.println("Pressure: " + w.getPressure()); 
+        } 
+    } 
+} 
+public class WeatherStation { 
+    public static void main(String[] args) { 
+        WeatherData weatherData = new WeatherData(); 
+        CurrentConditionsDisplay display = new CurrentConditionsDisplay(); 
+        weatherData.addObserver(display); 
+        weatherData.setMeasurements(30.4f, 65.2f, 1012.5f); 
+        weatherData.setMeasurements(32.1f, 70.0f, 1010.2f); 
+    } 
+} 
+ 
+ 
+Q2 
+int ldrPin = A0; 
+int ledPin = 9; 
+int ldrValue; 
+int ledBrightness; 
+void setup() { 
+pinMode(ledPin, OUTPUT); 
+Serial.begin(9600); 
+} 
+void loop() { 
+ldrValue = analogRead(ldrPin); 
+ledBrightness = map(ldrValue, 0, 1023, 255, 0); 
+analogWrite(ledPin, ledBrightness); 
+Serial.print("LDR Value: "); 
+Serial.print(ldrValue); 
+Serial.print("  LED Brightness: "); 
+Serial.println(ledBrightness); 
+delay(200); 
+} 
+
+
+
+
+
+
+
+Slip 19
+
+
+
+
+Slip No 19 
+Q1 
+abstract class Pizza { 
+    String name; 
+    void prepare() { 
+        System.out.println("Preparing " + name); 
+    } 
+    void bake() { 
+        System.out.println("Baking " + name); 
+    } 
+    void cut() { 
+        System.out.println("Cutting " + name); 
+    } 
+    void box() { 
+        System.out.println("Boxing " + name); 
+    } 
+    public String getName() { 
+        return name; 
+    } 
+} 
+class NYStyleCheesePizza extends Pizza { 
+    public NYStyleCheesePizza() { 
+        name = "NY Style Cheese Pizza"; 
+    } 
+} 
+class ChicagoStyleCheesePizza extends Pizza { 
+    public ChicagoStyleCheesePizza() { 
+        name = "Chicago Style Cheese Pizza"; 
+    } 
+    @Override 
+    void cut() { 
+        System.out.println("Cutting Chicago Pizza into square slices"); 
+    } 
+} 
+abstract class PizzaStore { 
+    public Pizza orderPizza(String type) { 
+        Pizza pizza = createPizza(type); 
+        pizza.prepare(); 
+        pizza.bake(); 
+        pizza.cut(); 
+        pizza.box(); 
+        return pizza; 
+    } 
+    protected abstract Pizza createPizza(String type); 
+} 
+class NYPizzaStore extends PizzaStore { 
+    @Override 
+    protected Pizza createPizza(String type) { 
+        if (type.equalsIgnoreCase("cheese")) { 
+            return new NYStyleCheesePizza(); 
+        } 
+        return null; 
+    } 
+} 
+ 
+class ChicagoPizzaStore extends PizzaStore { 
+    @Override 
+    protected Pizza createPizza(String type) { 
+        if (type.equalsIgnoreCase("cheese")) { 
+            return new ChicagoStyleCheesePizza(); 
+        } 
+        return null; 
+    } 
+} 
+public class PizzaTestDrive { 
+    public static void main(String[] args) { 
+        PizzaStore nyStore = new NYPizzaStore(); 
+        PizzaStore chicagoStore = new ChicagoPizzaStore(); 
+        System.out.println("Ordering NY Pizza:"); 
+        Pizza pizza1 = nyStore.orderPizza("cheese"); 
+        System.out.println("Ordered: " + pizza1.getName()); 
+        System.out.println("\nOrdering Chicago Pizza:"); 
+        Pizza pizza2 = chicagoStore.orderPizza("cheese"); 
+        System.out.println("Ordered: " + pizza2.getName()); 
+    } 
+} 
+ 
+ 
+Q2. 
+1. ls 
+List files and folders 
+ls 
+2. cd 
+Change directory 
+cd /home/pi 
+3. touch 
+Create empty file 
+touch file.txt 
+4. mv 
+Move or rename file 
+mv old.txt new.txt 
+5. rm 
+Delete file 
+rm file.txt 
+6. man 
+Show manual pages 
+man ls 
+7. mkdir 
+Create folder 
+mkdir mydir 
+8. rmdir 
+Remove empty folder 
+rmdir mydir 
+9. tar 
+Create or extract archive 
+tar -cvf backup.tar /home/pi 
+10. gzip 
+Compress file 
+gzip file.txt 
+11. cat 
+Display file content 
+cat file.txt 
+12. more 
+View large files page-by-page 
+more bigfile.txt 
+13. less 
+Advanced file viewer 
+less bigfile.txt 
+14. ps 
+View running processes 
+ps 
+15. sudo 
+Run command as superuser 
+sudo apt update 
+16. cron 
+Schedule tasks 
+crontab -e 
+17. chown 
+Change file owner 
+sudo chown pi file.txt 
+18. chgrp 
+Change group 
+sudo chgrp users file.txt 
+19. ping 
+Check network connectivity 
+ping google.com 
+ 
+
+
+
+
+
+SLip 20
+
+
+
+Slip No 20 
+Q1 
+import java.io.FilterInputStream; 
+import java.io.IOException; 
+import java.io.InputStream; 
+class LowerCaseInputStream extends FilterInputStream { 
+    protected LowerCaseInputStream(InputStream in) { 
+        super(in); 
+    } 
+    @Override 
+    public int read() throws IOException { 
+        int c = super.read(); 
+        return (c == -1 ? c : Character.toLowerCase((char)c)); 
+    } 
+    @Override 
+    public int read(byte[] b, int off, int len) throws IOException { 
+        int result = super.read(b, off, len); 
+        for (int i = off; i < off + result; i++) { 
+            b[i] = (byte) Character.toLowerCase((char)b[i]); 
+        } 
+        return result; 
+    } 
+} 
+public class LowerCaseDecoratorTest { 
+    public static void main(String[] args) { 
+        try { 
+            InputStream in = new LowerCaseInputStream(System.in); 
+            System.out.println("Enter text: "); 
+           int c; 
+            while ((c = in.read()) != -1) { 
+                System.out.print((char)c);  
+} 
+        } catch (IOException e) { 
+            e.printStackTrace(); 
+        } 
+    } 
+} 
+Q2 
+A .  name = input("Enter your name: ") 
+print("Hello", name) 
+B .  a = float(input("Enter first number: ")) 
+b = float(input("Enter second number: ")) 
+print("Sum =", a + b) 
+print("Difference =", a - b) 
+print("Product =", a * b) 
+if b != 0: 
+    print("Division =", a / b) 
+else: 
+    print("Division not possible") 
+C . text = input("Enter a string: ") 
+words = text.split() 
+word_count = len(words) 
+char_count = len(text) 
+print("Word Count =", word_count)  print("Character Count =", char_count) 

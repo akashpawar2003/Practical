@@ -1,0 +1,54 @@
+Slip No 20 
+Q1 
+import java.io.FilterInputStream; 
+import java.io.IOException; 
+import java.io.InputStream; 
+class LowerCaseInputStream extends FilterInputStream { 
+    protected LowerCaseInputStream(InputStream in) { 
+        super(in); 
+    } 
+    @Override 
+    public int read() throws IOException { 
+        int c = super.read(); 
+        return (c == -1 ? c : Character.toLowerCase((char)c)); 
+    } 
+    @Override 
+    public int read(byte[] b, int off, int len) throws IOException { 
+        int result = super.read(b, off, len); 
+        for (int i = off; i < off + result; i++) { 
+            b[i] = (byte) Character.toLowerCase((char)b[i]); 
+        } 
+        return result; 
+    } 
+} 
+public class LowerCaseDecoratorTest { 
+    public static void main(String[] args) { 
+        try { 
+            InputStream in = new LowerCaseInputStream(System.in); 
+            System.out.println("Enter text: "); 
+           int c; 
+            while ((c = in.read()) != -1) { 
+                System.out.print((char)c);  
+} 
+        } catch (IOException e) { 
+            e.printStackTrace(); 
+        } 
+    } 
+} 
+Q2 
+A .  name = input("Enter your name: ") 
+print("Hello", name) 
+B .  a = float(input("Enter first number: ")) 
+b = float(input("Enter second number: ")) 
+print("Sum =", a + b) 
+print("Difference =", a - b) 
+print("Product =", a * b) 
+if b != 0: 
+    print("Division =", a / b) 
+else: 
+    print("Division not possible") 
+C . text = input("Enter a string: ") 
+words = text.split() 
+word_count = len(words) 
+char_count = len(text) 
+print("Word Count =", word_count)  print("Character Count =", char_count) 

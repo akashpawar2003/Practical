@@ -1,0 +1,111 @@
+Slip 16
+
+
+
+
+Q1
+
+
+import java.util.*;
+
+interface Observer {
+    void update(int number);
+}
+
+interface Subject {
+    void register(Observer o);
+    void remove(Observer o);
+    void notifyObservers();
+}
+
+class NumberSubject implements Subject {
+    private List<Observer> observers = new ArrayList<>();
+    private int number;
+
+    public void setNumber(int n){
+        this.number = n;
+        notifyObservers();
+    }
+
+    public int getNumber(){ return number; }
+
+    public void register(Observer o){ observers.add(o); }
+    public void remove(Observer o){ observers.remove(o); }
+    public void notifyObservers(){
+        for(Observer o : observers) o.update(number);
+    }
+}
+
+class HexObserver implements Observer {
+    public void update(int number){ System.out.println("Hex: " + Integer.toHexString(number)); }
+}
+
+class OctalObserver implements Observer {
+    public void update(int number){ System.out.println("Octal: " + Integer.toOctalString(number)); }
+}
+
+class BinaryObserver implements Observer {
+    public void update(int number){ System.out.println("Binary: " + Integer.toBinaryString(number)); }
+}
+
+public class Main {
+    public static void main(String[] args){
+        NumberSubject subject = new NumberSubject();
+        subject.register(new HexObserver());
+        subject.register(new OctalObserver());
+        subject.register(new BinaryObserver());
+
+        subject.setNumber(25);  // example: prints hex, octal, binary
+        subject.setNumber(100);
+    }
+}
+
+
+
+
+
+
+Q2
+
+
+
+
+#include <WiFi.h> // use <ESP8266WiFi.h> for ESP8266
+
+const char* ssid = "YOUR_SSID";
+const char* pass = "YOUR_PASSWORD";
+
+void setup(){
+  Serial.begin(115200);
+  WiFi.begin(ssid, pass);
+  Serial.print("Connecting to WiFi");
+  int tries = 0;
+  while (WiFi.status() != WL_CONNECTED && tries < 20) {
+    delay(500);
+    Serial.print(".");
+    tries++;
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println();
+    Serial.println("Connected!");
+    Serial.print("IP: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println();
+    Serial.println("Failed to connect");
+  }
+}
+
+void loop(){
+  // Nothing required for this task
+}
+
+
+
+
+
+
+Slip 17 
+
+
+

@@ -1,0 +1,123 @@
+Slip 14: 
+Q1: 
+// Command.java 
+public interface Command { 
+    void execute(); 
+} 
+//Light.java 
+public class Light { 
+    public void on() { 
+        System.out.println("Light is ON"); 
+    } 
+    public void off() { 
+        System.out.println("Light is OFF"); 
+    } 
+} 
+//GarageDoor.java 
+public class GarageDoor { 
+    public void up() { 
+        System.out.println("Garage Door is OPEN"); 
+    } 
+} 
+//Stereo.java 
+public class Stereo { 
+    public void on() { 
+        System.out.println("Stereo is ON"); 
+    } 
+    public void setCD() { 
+        System.out.println("Stereo set to CD mode"); 
+    } 
+    public void setVolume(int v) { 
+        System.out.println("Stereo volume set to " + v); 
+    } 
+} 
+//LightOnCommand.java 
+public class LightOnCommand implements Command { 
+    Light light; 
+    public LightOnCommand(Light light) { 
+        this.light = light; 
+    } 
+    public void execute() { 
+        light.on(); 
+    } 
+} 
+//LightOffCommand.java 
+public class LightOffCommand implements Command { 
+    Light light; 
+    public LightOffCommand(Light light) { 
+        this.light = light; 
+    } 
+    public void execute() { 
+        light.off(); 
+    } 
+} 
+//GarageDoorUpCommand.java 
+public class GarageDoorUpCommand implements Command { 
+    GarageDoor door; 
+    public GarageDoorUpCommand(GarageDoor door) { 
+        this.door = door; 
+    } 
+    public void execute() { 
+        door.up(); 
+    } 
+} 
+//StereoOnWithCDCommand.java 
+public class StereoOnWithCDCommand implements Command { 
+    Stereo stereo; 
+    public StereoOnWithCDCommand(Stereo stereo) { 
+        this.stereo = stereo; 
+    } 
+    public void execute() { 
+        stereo.on(); 
+        stereo.setCD(); 
+        stereo.setVolume(10); 
+    } 
+} 
+//RemoteControl.java 
+public class RemoteControl { 
+    private Command slot; 
+ public void setCommand(Command command) { 
+        slot = command; 
+    } 
+    public void buttonPressed() { 
+        slot.execute(); 
+    } 
+} 
+//Main.java 
+public class Main { 
+    public static void main(String[] args) { 
+        RemoteControl remote = new RemoteControl(); 
+        Light light = new Light(); 
+        GarageDoor garage = new GarageDoor(); 
+        Stereo stereo = new Stereo(); 
+        remote.setCommand(new LightOnCommand(light)); 
+        remote.buttonPressed(); 
+        remote.setCommand(new LightOffCommand(light)); 
+        remote.buttonPressed(); 
+        remote.setCommand(new GarageDoorUpCommand(garage)); 
+        remote.buttonPressed(); 
+        remote.setCommand(new StereoOnWithCDCommand(stereo)); 
+        remote.buttonPressed(); 
+    } 
+} 
+ 
+ 
+Q2: 
+int vibSensor = 2; 
+int led = 13; 
+void setup() { 
+pinMode(vibSensor, INPUT); 
+pinMode(led, OUTPUT); 
+Serial.begin(9600); 
+} 
+void loop() { 
+int value = digitalRead(vibSensor); 
+if (value == HIGH) {  
+Serial.println("Vibration Detected!"); 
+digitalWrite(led, HIGH); 
+}  
+else { 
+digitalWrite(led, LOW); 
+} 
+delay(200); 
+} 

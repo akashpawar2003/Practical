@@ -1,0 +1,102 @@
+Slip 9: 
+Q1: 
+package com.hr; 
+public class Employee { 
+    private int id; 
+    private String name; 
+    private double salary; 
+    public Employee() {} 
+    public Employee(int id, String name, double salary) { 
+        this.id = id; 
+        this.name = name; 
+        this.salary = salary; 
+    } 
+    public void display() { 
+        System.out.println("Employee ID   : " + id); 
+        System.out.println("Employee Name : " + name); 
+        System.out.println("Salary        : " + salary); 
+    } 
+    public void setId(int id) { this.id = id; } 
+    public void setName(String name) { this.name = name; } 
+    public void setSalary(double salary) { this.salary = salary; } 
+} 
+ 
+//HrService.java 
+package com.hr; 
+public class HRService { 
+    private Employee employee; 
+    public void setEmployee(Employee employee) { 
+        this.employee = employee; 
+    } 
+    public void showEmployeeDetails() { 
+        System.out.println("\n--- HR Application ---"); 
+        employee.display(); 
+    } 
+} 
+ 
+//applicationContext.html 
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd"> 
+    <bean id="employee" class="com.hr.Employee"> 
+        <property name="id" value="101"/> 
+        <property name="name" value="Vaishnavi"/> 
+        <property name="salary" value="50000"/> 
+    </bean> 
+    <bean id="hrService" class="com.hr.HRService"> 
+        <property name="employee" ref="employee"/> 
+    </bean> 
+</beans> 
+ 
+//MainApp.java 
+package com.hr; 
+import org.springframework.context.ApplicationContext; 
+import org.springframework.context.support.ClassPathXmlApplicationContext; 
+public class MainApp { 
+    public static void main(String[] args) { 
+        ApplicationContext context = 
+                new ClassPathXmlApplicationContext("applicationContext.xml"); 
+        HRService service = (HRService) context.getBean("hrService"); 
+        service.showEmployeeDetails(); 
+    } 
+} 
+ 
+Q2: 
+(a) Read your name and print Hello message 
+name = input("Enter your name: ") 
+print("Hello", name) 
+ 
+(b) Read two numbers and print sum, difference, product, division 
+a = float(input("Enter first number: ")) 
+b = float(input("Enter second number: ")) 
+print("Sum =", a + b) 
+print("Difference =", a - b) 
+print("Product =", a * b) 
+if b != 0: 
+    print("Division =", a / b) 
+else: 
+print("Division not possible") 
+(c) Word and Character Count of a string 
+text = input("Enter a string: ") 
+words = text.split() 
+word_count = len(words) 
+char_count = len(text) 
+print("Words =", word_count) 
+print("Characters =", char_count) 
+(d) Area of a given shape 
+shape = input("Enter shape (rectangle/triangle/circle): ") 
+if shape == "rectangle": 
+l = float(input("Enter length: ")) 
+b = float(input("Enter breadth: ")) 
+print("Area =", l * b) 
+elif shape == "triangle": 
+b = float(input("Enter base: ")) 
+h = float(input("Enter height: ")) 
+print("Area =", 0.5 * b * h) 
+elif shape == "circle": 
+r = float(input("Enter radius: ")) 
+print("Area =", 3.14 * r * r) 
+else: 
+print("Invalid shape") 

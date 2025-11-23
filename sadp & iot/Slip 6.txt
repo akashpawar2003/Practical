@@ -1,0 +1,211 @@
+Slip no 6 
+Q1 
+interface Command { 
+    void execute(); 
+    void undo(); 
+} 
+class Light { 
+    public void on() { 
+        System.out.println("Light is ON"); 
+    } 
+    public void off() { 
+        System.out.println("Light is OFF"); 
+    } 
+} 
+ 
+class LightOnCommand implements Command { 
+    Light light; 
+    public LightOnCommand(Light light) { 
+        this.light = light; 
+    } 
+    public void execute() { 
+        light.on(); 
+    } 
+    public void undo() { 
+        light.off(); 
+    } 
+} 
+ 
+class LightOffCommand implements Command { 
+    Light light; 
+    public LightOffCommand(Light light) { 
+        this.light = light; 
+    } 
+    public void execute() { 
+        light.off(); 
+    } 
+    public void undo() { 
+        light.on(); 
+    } 
+} 
+class RemoteControl { 
+    private Command slot; 
+ 
+    public void setCommand(Command command) { 
+        slot = command; 
+    } 
+ 
+    public void pressButton() { 
+        slot.execute(); 
+    } 
+    public void pressUndo() { 
+     slot.undo(); 
+
+
+
+
+
+Q2. 
+int sensorPin = A0;     
+int ledPin = 13; 
+f
+ loat temperature; 
+void setup() { 
+Serial.begin(9600); 
+pinMode(ledPin, OUTPUT); 
+} 
+void loop() { 
+int sensorValue = analogRead(sensorPin); 
+temperature = (sensorValue * 5.0 * 100.0) / 1023; 
+Serial.print("Temperature: "); 
+Serial.print(temperature); 
+Serial.println(" °C"); 
+if (temperature > 30) { 
+Serial.println("ALERT: High Temperature Detected!"); 
+digitalWrite(ledPin, HIGH); 
+} else { 
+digitalWrite(ledPin, LOW); 
+} 
+delay(500); 
+} 
+
+
+
+
+Slip 7 
+
+
+
+
+
+Slip no 7 
+Q1 
+class CeilingFan { 
+    public static final int HIGH = 3; 
+    public static final int MEDIUM = 2; 
+    public static final int LOW = 1; 
+    public static final int OFF = 0; 
+    private int speed; 
+    public CeilingFan() { 
+        speed = OFF; 
+    } 
+    public void high() { 
+        speed = HIGH; 
+        System.out.println("Fan speed set to HIGH"); 
+    } 
+    public void medium() { 
+        speed = MEDIUM; 
+        System.out.println("Fan speed set to MEDIUM"); 
+    } 
+    public void low() { 
+        speed = LOW; 
+        System.out.println("Fan speed set to LOW"); 
+    } 
+    public void off() { 
+        speed = OFF; 
+        System.out.println("Fan turned OFF"); 
+    } 
+    public int getSpeed() { 
+        return speed; 
+    } 
+} 
+// Command Interface 
+interface Command { 
+    void execute(); 
+    void undo(); 
+} 
+// Concrete Commands 
+class FanHighCommand implements Command { 
+    CeilingFan fan; 
+    int prevSpeed; 
+    public FanHighCommand(CeilingFan fan) { 
+        this.fan = fan; 
+    } 
+    public void execute() { 
+        prevSpeed = fan.getSpeed(); 
+        fan.high(); 
+    } 
+    public void undo() { 
+        if (prevSpeed == CeilingFan.MEDIUM) fan.medium(); 
+        else if (prevSpeed == CeilingFan.LOW) fan.low(); 
+        else if (prevSpeed == CeilingFan.OFF) fan.off(); 
+    } 
+} 
+class FanOffCommand implements Command { 
+    CeilingFan fan; 
+    int prevSpeed; 
+    public FanOffCommand(CeilingFan fan) { 
+        this.fan = fan; 
+    } 
+    public void execute() { 
+        prevSpeed = fan.getSpeed(); 
+        fan.off(); 
+    } 
+ 
+    public void undo() { 
+        if (prevSpeed == CeilingFan.HIGH) fan.high(); 
+        else if (prevSpeed == CeilingFan.MEDIUM) fan.medium(); 
+        else if (prevSpeed == CeilingFan.LOW) fan.low(); 
+    } 
+} 
+// Invoker 
+class RemoteControl { 
+    Command slot; 
+    public void setCommand(Command command) { 
+        slot = command; 
+    } 
+    public void pressButton() { 
+        slot.execute(); 
+    } 
+    public void pressUndo() { 
+        slot.undo(); 
+    } 
+} 
+// Test Class 
+public class Main { 
+    public static void main(String[] args) { 
+        RemoteControl remote = new RemoteControl(); 
+        CeilingFan fan = new CeilingFan(); 
+        Command high = new FanHighCommand(fan); 
+        Command off = new FanOffCommand(fan); 
+        remote.setCommand(high); 
+        remote.pressButton();  // Fan High 
+        remote.pressUndo();    // Undo → previous state 
+        remote.setCommand(off); 
+        remote.pressButton();  // Fan Off 
+        remote.pressUndo();    // Undo → previous speed 
+    } 
+} 
+ 
+ 
+ 
+ 
+ 
+ 
+Q2 
+int ldrPin = A0;   // LDR input 
+int ledPin = 9;    // LED output (PWM) 
+void setup() { 
+Serial.begin(9600); 
+} 
+void loop() { 
+int ldrValue = analogRead(ldrPin);     // read LDR (0-1023) 
+int brightness = map(ldrValue, 0, 1023, 255, 0);  
+// More light → LED dim 
+// Less light → LED bright 
+analogWrite(ledPin, brightness);        
+Serial.print("LDR Value: "); 
+Serial.print(ldrValue); 
+Serial.print("  LED Brightness: "); 
+Serial.println(brightness); 
+delay(200);} 

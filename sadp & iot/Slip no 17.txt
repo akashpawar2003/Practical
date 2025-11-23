@@ -1,0 +1,107 @@
+Slip no 17 
+Q1 
+interface Shape { 
+    void draw(); 
+} 
+class Rectangle implements Shape { 
+    @Override 
+    public void draw() { 
+        System.out.println("Inside Rectangle::draw() method."); 
+    } 
+} 
+class Square implements Shape { 
+    @Override 
+    public void draw() { 
+        System.out.println("Inside Square::draw() method."); 
+    } 
+} 
+class RoundedRectangle implements Shape { 
+    @Override 
+    public void draw() { 
+        System.out.println("Inside RoundedRectangle::draw() method."); 
+    } 
+} 
+class RoundedSquare implements Shape { 
+    @Override 
+    public void draw() { 
+        System.out.println("Inside RoundedSquare::draw() method."); 
+    } 
+} 
+abstract class AbstractFactory { 
+    abstract Shape getShape(String shapeType); 
+} 
+class ShapeFactory extends AbstractFactory { 
+    @Override 
+    public Shape getShape(String shapeType) { 
+        if (shapeType.equalsIgnoreCase("RECTANGLE")) { 
+            return new Rectangle(); 
+        } else if (shapeType.equalsIgnoreCase("SQUARE")) { 
+            return new Square(); 
+        } 
+        return null; 
+    } 
+} 
+class RoundedShapeFactory extends AbstractFactory { 
+    @Override 
+    public Shape getShape(String shapeType) { 
+        if (shapeType.equalsIgnoreCase("RECTANGLE")) { 
+            return new RoundedRectangle(); 
+        } else if (shapeType.equalsIgnoreCase("SQUARE")) { 
+            return new RoundedSquare(); 
+        } 
+        return null; 
+    } 
+} 
+class FactoryProducer { 
+    public static AbstractFactory getFactory(boolean rounded) { 
+        if (rounded) { 
+            return new RoundedShapeFactory(); 
+        } else { 
+            return new ShapeFactory(); 
+        } 
+    } 
+} 
+public class AbstractFactoryPatternDemo { 
+    public static void main(String[] args) { 
+        AbstractFactory shapeFactory = FactoryProducer.getFactory(false); 
+        Shape s1 = shapeFactory.getShape("RECTANGLE"); 
+        s1.draw(); 
+        Shape s2 = shapeFactory.getShape("SQUARE"); 
+        s2.draw(); 
+        AbstractFactory roundedFactory = FactoryProducer.getFactory(true); 
+        Shape s3 = roundedFactory.getShape("RECTANGLE"); 
+        s3.draw(); 
+        Shape s4 = roundedFactory.getShape("SQUARE"); 
+        s4.draw(); 
+    } 
+} 
+ 
+Q2 
+const int tempPin = A0; 
+const int ledPin = 7; 
+f
+ loat temperature; 
+void setup() { 
+pinMode(ledPin, OUTPUT); 
+Serial.begin(9600); 
+} 
+void loop() { 
+int reading = analogRead(tempPin); 
+temperature = (reading * 5.0 * 100) / 1024;  
+Serial.print("Temperature: "); 
+Serial.print(temperature); 
+Serial.println(" *C"); 
+if (temperature > 30) {    
+digitalWrite(ledPin, HIGH); 
+} else { 
+digitalWrite(ledPin, LOW); 
+} 
+delay(500); 
+} 
+
+
+
+
+
+
+

@@ -1,0 +1,96 @@
+Slip no 4 
+Q1 
+// ---------- Pizza Base Class ---------- 
+abstract class Pizza { 
+    String name; 
+    void prepare() { 
+        System.out.println("Preparing " + name); 
+    } 
+    void bake() { 
+        System.out.println("Baking " + name); 
+    } 
+    void cut() { 
+        System.out.println("Cutting " + name); 
+    } 
+    void box() { 
+        System.out.println("Boxing " + name); 
+    } 
+    public String getName() { 
+        return name; 
+    } 
+} 
+// ---------- NY Style Pizza ---------- 
+class NYStyleCheesePizza extends Pizza { 
+    public NYStyleCheesePizza() { 
+        name = "NY Style Cheese Pizza"; 
+    } 
+} 
+// ---------- Chicago Style Pizza ---------- 
+class ChicagoStyleCheesePizza extends Pizza { 
+    public ChicagoStyleCheesePizza() { 
+        name = "Chicago Style Cheese Pizza"; 
+    } 
+    @Override 
+    void cut() {     // Chicago style cut (different) 
+        System.out.println("Cutting pizza into square slices"); 
+    } 
+} 
+// ---------- Creator Class ---------- 
+abstract class PizzaStore { 
+    public Pizza orderPizza(String type) { 
+        Pizza pizza = createPizza(type); 
+        pizza.prepare(); 
+        pizza.bake(); 
+        pizza.cut(); 
+        pizza.box(); 
+        return pizza; 
+    } 
+    // Factory Method 
+    protected abstract Pizza createPizza(String type); 
+} 
+// ---------- NY Pizza Store ---------- 
+class NYPizzaStore extends PizzaStore { 
+    protected Pizza createPizza(String type) { 
+        if (type.equals("cheese")) 
+            return new NYStyleCheesePizza(); 
+        else 
+            return null; 
+    } 
+} 
+// ---------- Chicago Pizza Store ---------- 
+class ChicagoPizzaStore extends PizzaStore { 
+    protected Pizza createPizza(String type) { 
+        if (type.equals("cheese")) 
+            return new ChicagoStyleCheesePizza(); 
+        else 
+            return null; 
+    } 
+} 
+// ---------- Test Class ---------- 
+public class Main { 
+    public static void main(String[] args) { 
+        PizzaStore nyStore = new NYPizzaStore(); 
+        PizzaStore chicagoStore = new ChicagoPizzaStore(); 
+        Pizza p1 = nyStore.orderPizza("cheese"); 
+        System.out.println("Ordered: " + p1.getName()); 
+        Pizza p2 = chicagoStore.orderPizza("cheese"); 
+        System.out.println("Ordered: " + p2.getName()); 
+    } } 
+Q2. 
+int touchPin = 2;     
+int ledPin = 13; 
+void setup() { 
+pinMode(touchPin, INPUT); 
+pinMode(ledPin, OUTPUT); 
+Serial.begin(9600); 
+} 
+void loop() { 
+int touchDetected = digitalRead(touchPin); 
+if (touchDetected == HIGH) { 
+Serial.println("Finger Detected!"); 
+digitalWrite(ledPin, HIGH); 
+} else { 
+digitalWrite(ledPin, LOW); 
+} 
+delay(100); 
+} 

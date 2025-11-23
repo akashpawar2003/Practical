@@ -1,0 +1,84 @@
+Slip 13 
+Q1. 
+class Volt { 
+    private int volts; 
+    public Volt(int volts) { 
+        this.volts = volts; 
+    } 
+    public int getVolts() { 
+        return volts; 
+    } 
+    public void setVolts(int volts) { 
+        this.volts = volts; 
+    } 
+} 
+class Socket { 
+    public Volt getVolt() { 
+        return new Volt(120); 
+    } 
+} 
+interface SocketAdapter { 
+    public Volt get3Volt(); 
+    public Volt get12Volt(); 
+    public Volt get120Volt(); 
+} 
+class SocketAdapterImpl extends Socket implements SocketAdapter { 
+ 
+    private Volt convertVolt(Volt v, int div) { 
+        return new Volt(v.getVolts() / div); 
+    } 
+    @Override 
+    public Volt get3Volt() { 
+        return convertVolt(getVolt(), 40); 
+    } 
+    @Override 
+    public Volt get12Volt() { 
+        return convertVolt(getVolt(), 10); 
+    } 
+    @Override 
+    public Volt get120Volt() { 
+        return getVolt(); 
+    } 
+} 
+public class MobileChargerTest { 
+    public static void main(String[] args) { 
+        SocketAdapter adapter = new SocketAdapterImpl(); 
+        System.out.println("Mobile Charging with: " + adapter.get3Volt().getVolts() + "V"); 
+        System.out.println("LED Light with: " + adapter.get12Volt().getVolts() + "V"); 
+        System.out.println("Home Appliance with: " + adapter.get120Volt().getVolts() + "V"); 
+    } 
+} 
+ 
+ 
+Q2 
+const int trigPin = 9; 
+const int echoPin = 10; 
+const int led = 7; 
+long duration; 
+int distance; 
+void setup() { 
+pinMode(trigPin, OUTPUT); 
+pinMode(echoPin, INPUT); 
+pinMode(led, OUTPUT); 
+Serial.begin(9600); 
+} 
+void loop() { 
+digitalWrite(trigPin, LOW); 
+delayMicroseconds(2); 
+digitalWrite(trigPin, HIGH); 
+delayMicroseconds(10); 
+digitalWrite(trigPin, LOW); 
+duration = pulseIn(echoPin, HIGH); 
+distance = duration * 0.034 / 2; 
+Serial.print("Distance: "); 
+Serial.print(distance); 
+Serial.println(" cm"); 
+if (distance < 20) { 
+digitalWrite(led, HIGH); 
+delay(200); 
+digitalWrite(led, LOW); 
+delay(200); 
+} else { 
+digitalWrite(led, LOW); 
+} 
+} 

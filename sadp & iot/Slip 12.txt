@@ -1,0 +1,89 @@
+Slip 12
+
+
+
+
+Q1) 
+
+
+
+
+
+
+interface Car {
+    void assemble();
+}
+
+class BasicCar implements Car {
+    public void assemble() {
+        System.out.println("Basic Car");
+    }
+}
+
+class CarDecorator implements Car {
+    protected Car car;
+    public CarDecorator(Car c) { this.car = c; }
+    public void assemble() { car.assemble(); }
+}
+
+class SportsCar extends CarDecorator {
+    public SportsCar(Car c) { super(c); }
+    public void assemble() {
+        super.assemble();
+        System.out.println("Adding features of Sports Car");
+    }
+}
+
+class LuxuryCar extends CarDecorator {
+    public LuxuryCar(Car c) { super(c); }
+    public void assemble() {
+        super.assemble();
+        System.out.println("Adding features of Luxury Car");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Car c1 = new SportsCar(new BasicCar());
+        c1.assemble();
+
+        Car c2 = new LuxuryCar(new BasicCar());
+        c2.assemble();
+    }
+}
+
+
+
+Q2)
+
+
+
+
+#include <WiFi.h>
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  delay(1000);
+
+  Serial.println("Scanning WiFi networks...");
+}
+
+void loop() {
+  int n = WiFi.scanNetworks();
+  Serial.println("Scan complete");
+
+  for (int i = 0; i < n; i++) {
+    Serial.print(i + 1);
+    Serial.print(": ");
+    Serial.print(WiFi.SSID(i));
+    Serial.print("  (Signal: ");
+    Serial.print(WiFi.RSSI(i));
+    Serial.println(" dBm)");
+  }
+
+  Serial.println("--------------------------");
+  delay(5000);
+}
+

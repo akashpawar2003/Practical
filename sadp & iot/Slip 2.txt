@@ -1,0 +1,75 @@
+Slip no 2 
+Q1 
+// Thread-safe Singleton Class 
+class Singleton { 
+    private static volatile Singleton instance; 
+    private Singleton() { 
+        System.out.println("Singleton instance created."); 
+    } 
+    public static Singleton getInstance() { 
+        if (instance == null) {             // First check 
+            synchronized (Singleton.class) { 
+                if (instance == null) {     // Second check 
+                    instance = new Singleton(); 
+                } 
+            } 
+        } 
+        return instance; 
+    } 
+    public void showMessage() { 
+        System.out.println("Hello from Singleton!"); 
+    } 
+} 
+// Testing Singleton with Threads 
+public class Main { 
+    public static void main(String[] args) { 
+ 
+        Runnable task = () -> { 
+            Singleton obj = Singleton.getInstance(); 
+            obj.showMessage(); 
+        }; 
+        Thread t1 = new Thread(task); 
+        Thread t2 = new Thread(task); 
+        Thread t3 = new Thread(task); 
+        t1.start(); 
+        t2.start(); 
+        t3.start(); 
+    } 
+} 
+ 
+Q2 
+int trigPin = 9; 
+int echoPin = 10; 
+int ledPin  = 7; 
+long duration; 
+int distance; 
+void setup() { 
+  pinMode(trigPin, OUTPUT); 
+  pinMode(echoPin, INPUT); 
+  pinMode(ledPin, OUTPUT); 
+  Serial.begin(9600); 
+} 
+void loop() { 
+// Trigger the sensor 
+digitalWrite(trigPin, LOW); 
+delayMicroseconds(2); 
+digitalWrite(trigPin, HIGH); 
+delayMicroseconds(10); 
+digitalWrite(trigPin, LOW); 
+// Read echo time 
+duration = pulseIn(echoPin, HIGH); 
+// Calculate distance (cm) 
+distance = duration * 0.034 / 2; 
+Serial.print("Distance: "); 
+Serial.print(distance); 
+Serial.println(" cm"); 
+// Blink LED if object is close 
+if (distance < 15) { 
+digitalWrite(ledPin, HIGH); 
+delay(200); 
+digitalWrite(ledPin, LOW); 
+delay(200); 
+} else { 
+digitalWrite(ledPin, LOW); 
+} 
+} 

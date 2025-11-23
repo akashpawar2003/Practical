@@ -1,0 +1,108 @@
+Slip 15: 
+Q1: 
+//DVDPlayer.java 
+public class DVDPlayer { 
+    public void on() { System.out.println("DVD Player ON"); } 
+    public void off() { System.out.println("DVD Player OFF"); } 
+    public void play(String movie) { 
+        System.out.println("Playing movie: " + movie); 
+    } 
+} 
+//Projector.java 
+public class Projector { 
+    public void on() { System.out.println("Projector ON"); } 
+    public void off() { System.out.println("Projector OFF"); } 
+    public void wideScreenMode() { 
+        System.out.println("Projector in Wide Screen Mode"); 
+    } 
+} 
+//Amplifier.java 
+public class Amplifier { 
+    public void on() { System.out.println("Amplifier ON"); } 
+    public void off() { System.out.println("Amplifier OFF"); } 
+    public void setVolume(int v) { 
+        System.out.println("Amplifier volume set to " + v); 
+    } 
+} 
+//Lights.java 
+public class Lights { 
+    public void dim(int value) { 
+        System.out.println("Lights dimmed to " + value + "%"); 
+    } 
+} 
+//Screen.java 
+public class Screen { 
+    public void down() { System.out.println("Screen DOWN"); } 
+    public void up() { System.out.println("Screen UP"); } 
+} 
+//HomeTheaterFacade.java 
+public class HomeTheaterFacade { 
+    private DVDPlayer dvd; 
+    private Projector projector; 
+    private Amplifier amp; 
+    private Screen screen; 
+    private Lights lights; 
+    public HomeTheaterFacade(DVDPlayer dvd, Projector projector,  
+                             Amplifier amp, Screen screen, Lights lights) { 
+        this.dvd = dvd; 
+        this.projector = projector; 
+        this.amp = amp; 
+        this.screen = screen; 
+        this.lights = lights; 
+    } 
+    public void watchMovie(String movie) { 
+        System.out.println("Get ready to watch a movie..."); 
+        lights.dim(30); 
+        screen.down(); 
+        projector.on(); 
+        projector.wideScreenMode(); 
+        amp.on(); 
+        amp.setVolume(8); 
+        dvd.on(); 
+        dvd.play(movie); 
+    } 
+public void endMovie() { 
+        System.out.println("Shutting movie theater down..."); 
+        dvd.off(); 
+        amp.off(); 
+        projector.off(); 
+        screen.up(); 
+        lights.dim(100); 
+    } 
+} 
+//Main.java 
+public class Main { 
+    public static void main(String[] args) { 
+        DVDPlayer dvd = new DVDPlayer(); 
+        Projector projector = new Projector(); 
+        Amplifier amp = new Amplifier(); 
+        Screen screen = new Screen(); 
+        Lights lights = new Lights(); 
+        HomeTheaterFacade homeTheater = 
+            new HomeTheaterFacade(dvd, projector, amp, screen, lights); 
+        homeTheater.watchMovie("Avengers Endgame"); 
+        System.out.println(); 
+        homeTheater.endMovie(); 
+    } 
+} 
+ 
+Q2. 
+Arduino Code 
+int touchPin = 2;   
+int led = 13;       
+void setup() { 
+  pinMode(touchPin, INPUT); 
+  pinMode(led, OUTPUT); 
+  Serial.begin(9600); 
+} 
+void loop() { 
+  int value = digitalRead(touchPin); 
+  if (value == HIGH) {         
+    Serial.println("Finger detected!"); 
+    digitalWrite(led, HIGH); 
+  } 
+  else { 
+digitalWrite(led, LOW); 
+} 
+delay(100); 
+} 

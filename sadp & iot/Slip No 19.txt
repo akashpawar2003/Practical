@@ -1,0 +1,137 @@
+Slip No 19 
+Q1 
+abstract class Pizza { 
+    String name; 
+    void prepare() { 
+        System.out.println("Preparing " + name); 
+    } 
+    void bake() { 
+        System.out.println("Baking " + name); 
+    } 
+    void cut() { 
+        System.out.println("Cutting " + name); 
+    } 
+    void box() { 
+        System.out.println("Boxing " + name); 
+    } 
+    public String getName() { 
+        return name; 
+    } 
+} 
+class NYStyleCheesePizza extends Pizza { 
+    public NYStyleCheesePizza() { 
+        name = "NY Style Cheese Pizza"; 
+    } 
+} 
+class ChicagoStyleCheesePizza extends Pizza { 
+    public ChicagoStyleCheesePizza() { 
+        name = "Chicago Style Cheese Pizza"; 
+    } 
+    @Override 
+    void cut() { 
+        System.out.println("Cutting Chicago Pizza into square slices"); 
+    } 
+} 
+abstract class PizzaStore { 
+    public Pizza orderPizza(String type) { 
+        Pizza pizza = createPizza(type); 
+        pizza.prepare(); 
+        pizza.bake(); 
+        pizza.cut(); 
+        pizza.box(); 
+        return pizza; 
+    } 
+    protected abstract Pizza createPizza(String type); 
+} 
+class NYPizzaStore extends PizzaStore { 
+    @Override 
+    protected Pizza createPizza(String type) { 
+        if (type.equalsIgnoreCase("cheese")) { 
+            return new NYStyleCheesePizza(); 
+        } 
+        return null; 
+    } 
+} 
+ 
+class ChicagoPizzaStore extends PizzaStore { 
+    @Override 
+    protected Pizza createPizza(String type) { 
+        if (type.equalsIgnoreCase("cheese")) { 
+            return new ChicagoStyleCheesePizza(); 
+        } 
+        return null; 
+    } 
+} 
+public class PizzaTestDrive { 
+    public static void main(String[] args) { 
+        PizzaStore nyStore = new NYPizzaStore(); 
+        PizzaStore chicagoStore = new ChicagoPizzaStore(); 
+        System.out.println("Ordering NY Pizza:"); 
+        Pizza pizza1 = nyStore.orderPizza("cheese"); 
+        System.out.println("Ordered: " + pizza1.getName()); 
+        System.out.println("\nOrdering Chicago Pizza:"); 
+        Pizza pizza2 = chicagoStore.orderPizza("cheese"); 
+        System.out.println("Ordered: " + pizza2.getName()); 
+    } 
+} 
+ 
+ 
+Q2. 
+1. ls 
+List files and folders 
+ls 
+2. cd 
+Change directory 
+cd /home/pi 
+3. touch 
+Create empty file 
+touch file.txt 
+4. mv 
+Move or rename file 
+mv old.txt new.txt 
+5. rm 
+Delete file 
+rm file.txt 
+6. man 
+Show manual pages 
+man ls 
+7. mkdir 
+Create folder 
+mkdir mydir 
+8. rmdir 
+Remove empty folder 
+rmdir mydir 
+9. tar 
+Create or extract archive 
+tar -cvf backup.tar /home/pi 
+10. gzip 
+Compress file 
+gzip file.txt 
+11. cat 
+Display file content 
+cat file.txt 
+12. more 
+View large files page-by-page 
+more bigfile.txt 
+13. less 
+Advanced file viewer 
+less bigfile.txt 
+14. ps 
+View running processes 
+ps 
+15. sudo 
+Run command as superuser 
+sudo apt update 
+16. cron 
+Schedule tasks 
+crontab -e 
+17. chown 
+Change file owner 
+sudo chown pi file.txt 
+18. chgrp 
+Change group 
+sudo chgrp users file.txt 
+19. ping 
+Check network connectivity 
+ping google.com 
+ 

@@ -1,0 +1,66 @@
+Slip 1: 
+Q1: 
+Java Program 
+import java.io.*; 
+class LowerCaseInputStream extends FilterInputStream { 
+    public LowerCaseInputStream(InputStream in) { 
+        super(in); 
+    } 
+    @Override 
+    public int read() throws IOException { 
+        int c = super.read(); 
+        return (c == -1 ? c : Character.toLowerCase((char) c)); 
+    } 
+    @Override 
+    public int read(byte[] b, int off, int len) throws IOException { 
+        int result = super.read(b, off, len); 
+        if (result != -1) { 
+            for (int i = off; i < off + result; i++) { 
+                b[i] = (byte) Character.toLowerCase((char) b[i]); 
+            } 
+        } 
+        return result; 
+    } 
+} 
+public class LowerCaseDecoratorDemo { 
+    public static void main(String[] args) throws Exception { 
+        String text = "HELLO JAVA DECORATOR PATTERN!"; 
+        InputStream input = new ByteArrayInputStream(text.getBytes()); 
+        InputStream lower = new LowerCaseInputStream(input); 
+        int c; 
+        while ((c = lower.read()) != -1) { 
+            System.out.print((char) c); 
+        } 
+    } 
+} 
+ 
+Q2 
+#include "WiFi.h" 
+void setup() { 
+  Serial.begin(115200); 
+  delay(1000); 
+  Serial.println("WiFi Network Scanner"); 
+} 
+void loop() { 
+  Serial.println("Scanning for available WiFi networks..."); 
+  int n = WiFi.scanNetworks(); 
+  if (n == 0) { 
+    Serial.println("No networks found!"); 
+  } else { 
+    Serial.println(String(n) + " networks found:"); 
+    for (int i = 0; i < n; ++i) { 
+      Serial.print(i + 1); 
+      Serial.print(") "); 
+      Serial.print(WiFi.SSID(i)); 
+      Serial.print("  Signal: "); 
+      Serial.print(WiFi.RSSI(i)); 
+      Serial.print(" dBm  Encryption: "); 
+      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? "Open" : "Secure"); 
+      delay(10); 
+    } 
+  } 
+ 
+  Serial.println("------------------------------------"); 
+  delay(5000);  
+} 
+ 

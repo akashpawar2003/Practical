@@ -1,0 +1,120 @@
+Slip 10: 
+Q1: 
+FlyBehavior.java 
+public interface FlyBehavior { 
+    void fly(); 
+} 
+QuackBehavior.java 
+public interface QuackBehavior { 
+    void quack(); 
+} 
+Flying behaviors 
+public class FlyWithWings implements FlyBehavior { 
+    public void fly() { 
+        System.out.println("I am flying with wings!"); 
+    } 
+} 
+public class FlyNoWay implements FlyBehavior { 
+    public void fly() { 
+        System.out.println("I cannot fly."); 
+    } 
+} 
+Quacking behaviors 
+public class Quack implements QuackBehavior { 
+    public void quack() { 
+        System.out.println("Quack! Quack!"); 
+    } 
+} 
+public class MuteQuack implements QuackBehavior { 
+    public void quack() { 
+        System.out.println("<< Silence >>"); 
+    } 
+} 
+Duck.java 
+public abstract class Duck { 
+    FlyBehavior flyBehavior; 
+    QuackBehavior quackBehavior; 
+    public void performFly() { 
+        flyBehavior.fly(); 
+    } 
+    public void performQuack() { 
+        quackBehavior.quack(); 
+    } 
+    public void swim() { 
+        System.out.println("All ducks float."); 
+    } 
+    public void setFlyBehavior(FlyBehavior fb) { 
+        flyBehavior = fb; 
+    } 
+    public void setQuackBehavior(QuackBehavior qb) { 
+        quackBehavior = qb; 
+    } 
+ 
+    public abstract void display(); 
+} 
+MallardDuck.java 
+public class MallardDuck extends Duck { 
+    public MallardDuck() { 
+        flyBehavior = new FlyWithWings(); 
+        quackBehavior = new Quack(); 
+    } 
+    public void display() { 
+        System.out.println("I am a Mallard Duck!"); 
+    } 
+} 
+DuckTest.java 
+public class DuckTest { 
+    public static void main(String[] args) { 
+        Duck duck = new MallardDuck(); 
+        duck.display(); 
+        duck.performFly(); 
+        duck.performQuack(); 
+        duck.setFlyBehavior(new FlyNoWay()); 
+        System.out.println("Changing fly behavior..."); 
+        duck.performFly(); 
+    } 
+} 
+Q2: 
+a) Print a name ‘n’ times using for loop & while loop 
+name = input("Enter name: ") 
+n = int(input("Enter n: ")) 
+print("Using for loop:") 
+for i in range(n): 
+print(name) 
+print("Using while loop:") 
+i = 0 
+while i < n: 
+print(name) 
+i += 1 
+b) Handle Divide by Zero Exception 
+try: 
+a = int(input("Enter numerator: ")) 
+b = int(input("Enter denominator: ")) 
+print("Result =", a / b) 
+except ZeroDivisionError: 
+print("Error: Division by zero not allowed.") 
+c) Print current time 10 times with 10 seconds interval 
+import time 
+for i in range(10): 
+print("Current Time:", time.ctime()) 
+t
+ ime.sleep(10) 
+d) Read a file line by line and print word count of each line 
+f
+ ile = open("sample.txt", "r") 
+for line in file: 
+words = line.split() 
+print("Line:", line.strip()) 
+print("Word Count:", len(words)) 
+f
+ ile.close() 
+
+
+
+
+sLIP 11
+
+
+
+
+
