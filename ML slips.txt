@@ -1,0 +1,1004 @@
+Slip 1
+Q1. Apriori on groceries (min_support=0.25)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules
+# load groceries (assume CSV with one transaction per row, items separated by commas)
+df = pd.read_csv('path/to/groceries.csv', header=None)
+transactions = df.fillna('').astype(str).apply(lambda row: [i.strip() for i in ','.join(row).split(',') if i.strip()], axis=1).tolist()
+te = TransactionEncoder()
+te_ary = te.fit(transactions).transform(transactions)
+df_te = pd.DataFrame(te_ary, columns=te.columns_)
+freq = apriori(df_te, min_support=0.25, use_colnames=True)
+rules = association_rules(freq, metric="confidence", min_threshold=0.5)
+print("Frequent itemsets:\n", freq)
+print("\nRules:\n", rules)
+Explain: Apriori on Groceries – Short Explanation
+What is Apriori?
+It is an algorithm used to find frequent itemsets and association rules from transaction data.
+It works on the idea that if an itemset is frequent, all its subsets must also be frequent.
+What your code does:
+Loads the groceries dataset (each row = one transaction).
+Converts items into a one-hot encoded format using TransactionEncoder.
+Applies Apriori with min_support = 0.25 → finds items that appear in at least 25% of transactions.
+Generates association rules based on confidence ≥ 0.5.
+Prints frequent itemsets and generated rules.
+If asked “What is confidence?”
+It is the probability that item B is bought when item A is bought.
+What does support=0.25 mean? (Item appears in 25% of all transactions).
+Why do we need LabelEncoder? (Computers/Plots need numbers, not text).
+
+Q2. Scatter plot for Iris & convert categorical to numeric
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder
+iris = sns.load_dataset('iris')
+# convert species to numeric
+le = LabelEncoder()
+iris['species_num'] = le.fit_transform(iris['species'])
+# scatter plot sepal_length vs sepal_width colored by species_num
+plt.figure()
+plt.scatter(iris['sepal_length'], iris['sepal_width'], c=iris['species_num'])
+plt.xlabel('Sepal Length')
+plt.ylabel('Sepal Width')
+plt.title('Iris: Sepal Length vs Sepal Width')
+plt.show()
+Explain: “In this program we load the Iris dataset.
+Since species is text, we convert it into numbers using LabelEncoder.
+Then we make a scatter plot of sepal length vs sepal width, and color each point using the species number.
+This helps us visually see how the species are separated in the dataset.”
+
+Slip 2
+Q1. Simple Linear Regression for house price (drop nulls)
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/house_prices.csv')
+df = df.dropna()
+# assume columns: 'area' and 'price'
+X = df[['area']]
+y = df['price']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = LinearRegression()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+print("MSE:", mean_squared_error(y_test, pred))
+Explanation: “In this program, we use Simple Linear Regression, which basically means we try to draw a straight line that best fits the data. It shows the relation between one input (area) and one output (price).
+The formula is: y = mx + c, where we use this line to predict future values.
+So here, we load the house price dataset, remove null values, and take area as X and price as y.
+We split the data, train the LinearRegression model, and calculate MSE to check how well the model predicts.
+In simple words, we are predicting house price just from the area using a straight-line model.”
+
+Q2. Agglomerative clustering on Wholesale customers dataset
+# slip2_q2_agglomerative_wholesale.py
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram, linkage
+import matplotlib.pyplot as plt
+df = pd.read_csv('path/to/Wholesale-customers.csv')  # remove ID col if present
+X = df.select_dtypes(include='number')
+X_scaled = StandardScaler().fit_transform(X)
+linked = linkage(X_scaled, 'ward')
+plt.figure(figsize=(8,4))
+dendrogram(linked, truncate_mode='level', p=5)
+plt.title('Hierarchical Clustering Dendrogram')
+plt.show()
+cluster = AgglomerativeClustering(n_clusters=3, affinity='euclidean', linkage='ward')
+labels = cluster.fit_predict(X_scaled)
+df['cluster'] = labels
+print(df.groupby('cluster').mean())
+Explain: “In this program, we perform hierarchical clustering, which groups similar customers together step by step.
+We load the dataset and standardize the values so all features are on the same scale.
+Then we create a dendrogram to visualize how clusters merge.
+After that, we use AgglomerativeClustering with 3 clusters and add the cluster labels to the dataset.
+Finally, we check the mean of each cluster to understand different customer groups.”
+
+Slip 3
+Q1. Multiple Linear Regression (house price)
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
+df = pd.read_csv('path/to/house_prices_multi.csv').dropna()
+# assume features: 'area','bedrooms','age' and target 'price'
+X = df[['area','bedrooms','age']]
+y = df['price']
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+model = LinearRegression()
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("R2:", r2_score(y_test,pred))
+explain: “In this program, we use Multiple Linear Regression, which is like Simple Linear Regression but with more than one input feature.
+Instead of predicting price using only area, here we use area, bedrooms, and age all together.
+We load the house price dataset, drop null values, split into train and test, and then train the LinearRegression() model.
+Finally, we check the model’s performance using R² score, which tells how well the model explains the data.
+In simple terms, this model predicts house price using multiple factors, not just one.”
+
+Q2. Logistic regression on crash.csv (age, speed -> survive)
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix
+df = pd.read_csv('path/to/crash.csv').dropna()
+# assume columns: 'age','speed','survived'
+X = df[['age','speed']]
+y = df['survived']
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+model = LogisticRegression(max_iter=200)
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test,pred))
+print("Confusion matrix:\n", confusion_matrix(y_test,pred))
+explain: “This program uses Logistic Regression, which is used for classification (Yes/No, 0/1).
+Here the target is whether the person survived the crash (1 = yes, 0 = no).
+We take age and speed as inputs, split into train and test, and train a LogisticRegression() model.
+Then we calculate accuracy and also print the confusion matrix to see correct and incorrect predictions.
+So basically, this model predicts survival chances based on age and driving speed.”
+
+Slip 4
+Q1. K-means on mall_customers dataset
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+from sklearn.metrics import silhouette_score
+import seaborn as sns
+df = pd.read_csv('path/to/mall_customers.csv')
+X = df[['Annual Income (k$)','Spending Score (1-100)']]
+scaler = StandardScaler()
+X_s = scaler.fit_transform(X)
+# elbow
+inertia=[]
+for k in range(1,8):
+    km = KMeans(n_clusters=k, random_state=0)
+    km.fit(X_s)
+    inertia.append(km.inertia_)
+plt.plot(range(1,8), inertia, 'o-')
+plt.title('Elbow Method')
+plt.show()
+k=5
+km = KMeans(n_clusters=k, random_state=0)
+labels = km.fit_predict(X_s)
+df['cluster'] = labels
+sns.scatterplot(x='Annual Income (k$)', y='Spending Score (1-100)', hue='cluster', data=df, palette='tab10')
+plt.show()
+explain: “In this program, we cluster mall customers based on Annual Income and Spending Score.
+First, we scale the data using StandardScaler so the values are on the same range.
+Then we use the Elbow Method by checking inertia for k = 1 to 7.
+The elbow point helps us decide the best number of clusters (here they chose k = 5).
+After selecting k, we run KMeans and assign each customer a cluster label.
+Finally, we plot a scatter plot where each color represents a different customer group.
+In simple words: we are grouping customers into different segments using their income and spending patterns.”
+
+Q2. Simple Linear Regression for predicting house price 
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/house_prices.csv')
+df = df.dropna()
+# assume columns: 'area' and 'price'
+X = df[['area']]
+y = df['price']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = LinearRegression()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+print("MSE:", mean_squared_error(y_test, pred))
+explain: “This is a simple linear regression model where we predict price using area.
+We remove null values, split into train and test, fit the LinearRegression() model, and calculate MSE.
+This model basically draws the best straight line between area and price to make predictions.”
+
+Slip 5
+Q1. Multiple Linear Regression for Fuel Consumption dataset
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error
+df = pd.read_csv('path/to/fuel_consumption.csv').dropna()
+# Example features: 'EngineSize','Cylinders','FuelConsumption'
+X = df[['EngineSize','Cylinders']]
+y = df['FuelConsumption']
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+model = LinearRegression()
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("MAE:", mean_absolute_error(y_test,pred))
+
+Q2. K-NN on Iris
+import seaborn as sns
+import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+iris = sns.load_dataset('iris')
+X = iris.drop('species',axis=1)
+y = iris['species']
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=1)
+model = KNeighborsClassifier(n_neighbors=3)
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test,pred))
+
+Slip 6
+Q1. Polynomial Linear Regression for Boston Housing
+import pandas as pd
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/boston_housing.csv').dropna()
+# assume features: 'RM' and target 'Price' etc.
+X = df[['RM']]
+y = df['Price']
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+X_train,X_test,y_train,y_test = train_test_split(X_poly,y,test_size=0.2,random_state=0)
+model = LinearRegression()
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("MSE:", mean_squared_error(y_test,pred))
+Q2. K-means classify employees into income clusters (drop nulls)
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+df = pd.read_csv('path/to/employees.csv').dropna()
+X = df[['income']]  # or multiple income-related columns
+scaler = StandardScaler(); Xs = scaler.fit_transform(X)
+# choose k using silhouette
+best_k, best_score = None, -1
+for k in range(2,6):
+    km = KMeans(n_clusters=k, random_state=0).fit(Xs)
+    score = silhouette_score(Xs, km.labels_)
+    if score>best_score:
+        best_score=score; best_k=k
+km = KMeans(n_clusters=best_k, random_state=0)
+df['cluster'] = km.fit_predict(Xs)
+print(df.groupby('cluster').mean())
+
+Slip 7
+Q1. Fit simple linear regression to Salary_positions.csv; predict level 11 & 12
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+df = pd.read_csv('path/to/Salary_positions.csv')
+# assume columns 'Level' and 'Salary'
+X = df[['Level']]
+y = df['Salary']
+model = LinearRegression()
+model.fit(X,y)
+for lvl in [11,12]:
+    print(f"Predicted salary for level {lvl}: {model.predict([[lvl]])[0]}")
+Q2. Naive Bayes on weather dataset
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+df = pd.read_csv('path/to/weather.csv').dropna()
+# sample: features: 'Outlook','Temperature','Humidity','Windy','Play'
+X = df.drop('Play',axis=1)
+for c in X.columns:
+    if X[c].dtype == object:
+        X[c] = LabelEncoder().fit_transform(X[c])
+y = LabelEncoder().fit_transform(df['Play'])
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+model = GaussianNB()
+model.fit(X_train,y_train)
+print("Accuracy:", accuracy_score(y_test, model.predict(X_test)))
+
+Slip 8
+Q1. Multinomial Naive Bayes for 20 newsgroups
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+data = fetch_20newsgroups(subset='all')
+X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2, random_state=0)
+model = make_pipeline(TfidfVectorizer(), MultinomialNB())
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, pred))
+Q2. Decision Tree: Play Tennis
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier, export_text
+# small dataset manual
+data = {'Outlook':['Sunny','Overcast','Rain','Sunny','Sunny','Overcast','Rain'],
+        'Temp':['Hot','Hot','Mild','Hot','Cool','Mild','Cool'],
+        'Humidity':['High','High','High','High','Normal','High','Normal'],
+        'Windy':[False,False,False,True,False,True,True],
+        'Play':['No','Yes','Yes','No','Yes','Yes','No']}
+df = pd.DataFrame(data)
+X = pd.get_dummies(df.drop('Play',axis=1).astype(str))
+y = df['Play']
+clf = DecisionTreeClassifier(criterion='entropy')
+clf.fit(X,y)
+print(export_text(clf, feature_names=list(X.columns)))
+
+Slip 9
+Q1. Ridge & Lasso on Boston (RM and Price)
+import pandas as pd
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/boston_houses.csv').dropna()
+X = df[['RM']]
+y = df['Price']
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+ridge = Ridge(alpha=1.0).fit(X_train,y_train)
+lasso = Lasso(alpha=0.1).fit(X_train,y_train)
+for model,name in [(ridge,'Ridge'),(lasso,'Lasso')]:
+    pred = model.predict([[5]])
+    mse = mean_squared_error(y_test, model.predict(X_test))
+    print(f"{name}: MSE={mse}, price_pred_for_5rooms={pred[0]}")
+Q2. Linear SVM using UniversalBank.csv
+import pandas as pd
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+df = pd.read_csv('path/to/UniversalBank.csv').dropna()
+# assume 'Personal_Loan' as target
+X = df.drop(columns=['ID','ZIP Code','Personal Loan'], errors='ignore')
+y = df['Personal Loan']
+sc = StandardScaler(); Xs = sc.fit_transform(X)
+X_train,X_test,y_train,y_test = train_test_split(Xs,y,test_size=0.2,random_state=0)
+svm = SVC(kernel='linear')
+svm.fit(X_train,y_train)
+print("Accuracy:", accuracy_score(y_test, svm.predict(X_test)))
+
+Slip 10
+Q1. PCA transform on Iris
+import seaborn as sns
+import pandas as pd
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+iris = sns.load_dataset('iris')
+X = iris.drop('species',axis=1)
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X)
+plt.scatter(X_pca[:,0], X_pca[:,1], c=iris['species'].astype('category').cat.codes)
+plt.xlabel('PC1'); plt.ylabel('PC2')
+plt.title('Iris PCA (2 components)')
+plt.show()
+Q2. Scatter plot iris —  (LabelEncoder + scatter).
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder
+iris = sns.load_dataset('iris')
+# convert species to numeric
+le = LabelEncoder()
+iris['species_num'] = le.fit_transform(iris['species'])
+# scatter plot sepal_length vs sepal_width colored by species_num
+plt.figure()
+plt.scatter(iris['sepal_length'], iris['sepal_width'], c=iris['species_num'])
+plt.xlabel('Sepal Length')
+plt.ylabel('Sepal Width')
+plt.title('Iris: Sepal Length vs Sepal Width')
+plt.show()
+
+Slip 11
+Q1. Polynomial Regression for Boston Housing 
+import pandas as pd
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/boston_housing.csv').dropna()
+# assume features: 'RM' and target 'Price' etc.
+X = df[['RM']]
+y = df['Price']
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+X_train,X_test,y_train,y_test = train_test_split(X_poly,y,test_size=0.2,random_state=0)
+model = LinearRegression()
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("MSE:", mean_squared_error(y_test,pred))
+Q2. Decision Tree classifier on banknote authentication (UCI)
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+df = pd.read_csv('path/to/data_banknote_authentication.txt', header=None) # UCI file
+# columns: 0-3 features, 4 class
+X = df.iloc[:,0:4]
+y = df.iloc[:,4]
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+clf = DecisionTreeClassifier()
+clf.fit(X_train,y_train)
+print("Accuracy:", accuracy_score(y_test, clf.predict(X_test)))
+
+Slip 12
+Q1. K-NN on Iris
+ import seaborn as sns
+import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+iris = sns.load_dataset('iris')
+X = iris.drop('species',axis=1)
+y = iris['species']
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=1)
+model = KNeighborsClassifier(n_neighbors=3)
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test,pred))
+Q2. Fit simple & polynomial regression to Salary_positions.csv; compare
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/Salary_positions.csv')
+X = df[['Level']]; y = df['Salary']
+# linear
+lr = LinearRegression().fit(X,y)
+# poly degree2
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+pr = LinearRegression().fit(X_poly,y)
+# evaluate using all data or split
+pred_lr = lr.predict(X); pred_pr = pr.predict(X_poly)
+print("Linear MSE:", mean_squared_error(y,pred_lr))
+print("Poly MSE:", mean_squared_error(y,pred_pr))
+for lvl in [11,12]:
+    print("Linear pred",lvl, lr.predict([[lvl]])[0], "Poly pred", pr.predict(poly.transform([[lvl]]))[0])
+
+Slip 13
+Q1. RNN to analyze Google stock price (predict next day trend)
+import pandas as pd
+import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
+from sklearn.preprocessing import MinMaxScaler
+df = pd.read_csv('path/to/google_stock.csv')  # has 'Close' column
+data = df['Close'].values.reshape(-1,1)
+scaler = MinMaxScaler()
+data_s = scaler.fit_transform(data)
+# prepare sequences
+def create_seq(data, seq_len=60):
+    X,y=[],[]
+    for i in range(seq_len, len(data)):
+        X.append(data[i-seq_len:i,0])
+        y.append(data[i,0])
+    return np.array(X), np.array(y)
+X,y = create_seq(data_s, seq_len=60)
+X = X.reshape(X.shape[0], X.shape[1], 1)
+split = int(len(X)*0.8)
+X_train,X_test,y_train,y_test = X[:split],X[split:],y[:split],y[split:]
+model = Sequential([LSTM(50, return_sequences=False, input_shape=(X.shape[1],1)), Dense(1)])
+model.compile(optimizer='adam', loss='mse')
+model.fit(X_train,y_train, epochs=5, batch_size=32)
+pred = model.predict(X_test)
+# trend: compare last predicted vs prev
+trend = "increasing" if pred[-1]>pred[-2] else "decreasing"
+print("Last two predictions:", pred[-2:], "Trend:", trend)
+Q2. Simple Linear Regression for house price 
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/house_prices.csv')
+df = df.dropna()
+# assume columns: 'area' and 'price'
+X = df[['area']]
+y = df['price']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = LinearRegression()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+print("MSE:", mean_squared_error(y_test, pred))
+
+Slip 14
+Q1. CNN on MNIST (tensorflow keras)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+(x_train,y_train),(x_test,y_test) = tf.keras.datasets.mnist.load_data()
+x_train = x_train.reshape(-1,28,28,1)/255.0
+x_test = x_test.reshape(-1,28,28,1)/255.0
+model = models.Sequential([
+    layers.Conv2D(32,(3,3), activation='relu', input_shape=(28,28,1)),
+    layers.MaxPooling2D((2,2)),
+    layers.Conv2D(64,(3,3), activation='relu'),
+    layers.MaxPooling2D((2,2)),
+    layers.Flatten(),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(10, activation='softmax')
+])
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.fit(x_train,y_train, epochs=3, validation_split=0.1)
+print("Test accuracy:", model.evaluate(x_test,y_test)[1])
+Q2. Find & remove nulls (create dataset)
+# slip14_q2_remove_nulls.py
+import pandas as pd
+df = pd.DataFrame({
+    'A':[1,2,None,4],
+    'B':[None,2,3,4]
+})
+print("Null counts:\n", df.isnull().sum())
+df_clean = df.dropna()  # or df.fillna(...)
+print("After dropna:\n", df_clean)
+
+Slip 15
+Q1. ANN to classify house price above/below average
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras import models, layers
+from sklearn.metrics import accuracy_score
+df = pd.read_csv('path/to/house_price.csv').dropna()
+# assume numeric features 'area','bedrooms', target 'price'
+X = df[['area','bedrooms','age']]
+y = (df['price'] > df['price'].mean()).astype(int)
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+sc = StandardScaler(); X_train_s = sc.fit_transform(X_train); X_test_s = sc.transform(X_test)
+model = models.Sequential([layers.Dense(16, activation='relu', input_shape=(X_train_s.shape[1],)), layers.Dense(8, activation='relu'), layers.Dense(1, activation='sigmoid')])
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train_s,y_train, epochs=10, batch_size=16, verbose=0)
+pred = (model.predict(X_test_s) > 0.5).astype(int)
+print("Accuracy:", accuracy_score(y_test, pred))
+Q2. Multiple Linear Regression for house price 
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
+df = pd.read_csv('path/to/house_prices_multi.csv').dropna()
+# assume features: 'area','bedrooms','age' and target 'price'
+X = df[['area','bedrooms','age']]
+y = df['price']
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+model = LinearRegression()
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("R2:", r2_score(y_test,pred))
+
+Slip 16
+Q1. Two-layer NN with ReLU and Sigmoid
+import numpy as np
+from tensorflow.keras import models, layers
+model = models.Sequential([
+    layers.Dense(32, activation='relu', input_shape=(10,)),  # example input dim 10
+    layers.Dense(1, activation='sigmoid')
+])
+model.compile(optimizer='adam', loss='binary_crossentropy')
+model.summary()
+Q2. Simple Linear Regression for Boston housing — 
+import pandas as pd
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/boston_housing.csv').dropna()
+# assume features: 'RM' and target 'Price' etc.
+X = df[['RM']]
+y = df['Price']
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+X_train,X_test,y_train,y_test = train_test_split(X_poly,y,test_size=0.2,random_state=0)
+model = LinearRegression()
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("MSE:", mean_squared_error(y_test,pred))
+
+Slip 17
+Q1. Ensemble methods on Pima Indians Diabetes (bagging, boosting, voting, stacking)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, VotingClassifier, StackingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+df = pd.read_csv('path/to/pima_diabetes.csv')
+X = df.drop('Outcome',axis=1); y = df['Outcome']
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+rf = RandomForestClassifier(random_state=0)
+adb = AdaBoostClassifier(random_state=0)
+dt = DecisionTreeClassifier()
+voting = VotingClassifier([('rf',rf),('dt',dt),('lr',LogisticRegression(max_iter=200))])
+stacking = StackingClassifier([('rf',rf),('dt',dt)], final_estimator=LogisticRegression())
+for name, model in [('RandomForest',rf),('AdaBoost',adb),('Voting',voting),('Stacking',stacking)]:
+    model.fit(X_train,y_train)
+    print(name, "Accuracy:", accuracy_score(y_test, model.predict(X_test)))
+Q2. Multiple Linear Regression for house price
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
+df = pd.read_csv('path/to/house_prices_multi.csv').dropna()
+# assume features: 'area','bedrooms','age' and target 'price'
+X = df[['area','bedrooms','age']]
+y = df['price']
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+model = LinearRegression()
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("R2:", r2_score(y_test,pred))
+
+Slip 18
+Q1. K-means on Diabetes dataset
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+df = pd.read_csv('path/to/diabetes.csv').dropna()
+X = df.select_dtypes(include='number')
+Xs = StandardScaler().fit_transform(X)
+km = KMeans(n_clusters=3, random_state=0).fit(Xs)
+print("Silhouette:", silhouette_score(Xs, km.labels_))
+df['cluster'] = km.labels_
+print(df.groupby('cluster').mean())
+Q2. Polynomial Regression for salary_positions dataset 
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/Salary_positions.csv')
+X = df[['Level']]; y = df['Salary']
+# linear
+lr = LinearRegression().fit(X,y)
+# poly degree2
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+pr = LinearRegression().fit(X_poly,y)
+# evaluate using all data or split
+pred_lr = lr.predict(X); pred_pr = pr.predict(X_poly)
+print("Linear MSE:", mean_squared_error(y,pred_lr))
+print("Poly MSE:", mean_squared_error(y,pred_pr))
+for lvl in [11,12]:
+    print("Linear pred",lvl, lr.predict([[lvl]])[0], "Poly pred", pr.predict(poly.transform([[lvl]]))[0])
+
+Slip 19
+Q1. Fit linear & polynomial regression to Salary_positions.csv; predict level 11 & 12 
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/Salary_positions.csv')
+X = df[['Level']]; y = df['Salary']
+# linear
+lr = LinearRegression().fit(X,y)
+# poly degree2
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+pr = LinearRegression().fit(X_poly,y)
+# evaluate using all data or split
+pred_lr = lr.predict(X); pred_pr = pr.predict(X_poly)
+print("Linear MSE:", mean_squared_error(y,pred_lr))
+print("Poly MSE:", mean_squared_error(y,pred_pr))
+for lvl in [11,12]:
+    print("Linear pred",lvl, lr.predict([[lvl]])[0], "Poly pred", pr.predict(poly.transform([[lvl]]))[0])
+Q2. Naive Bayes on weather dataset
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+df = pd.read_csv('path/to/weather.csv').dropna()
+# sample: features: 'Outlook','Temperature','Humidity','Windy','Play'
+X = df.drop('Play',axis=1)
+for c in X.columns:
+    if X[c].dtype == object:
+        X[c] = LabelEncoder().fit_transform(X[c])
+y = LabelEncoder().fit_transform(df['Play'])
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+model = GaussianNB()
+model.fit(X_train,y_train)
+print("Accuracy:", accuracy_score(y_test, model.predict(X_test)))
+
+Slip 20
+Q1. Ridge & Lasso on Boston (RM and Price)
+import pandas as pd
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/boston_houses.csv').dropna()
+X = df[['RM']]
+y = df['Price']
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+ridge = Ridge(alpha=1.0).fit(X_train,y_train)
+lasso = Lasso(alpha=0.1).fit(X_train,y_train)
+for model,name in [(ridge,'Ridge'),(lasso,'Lasso')]:
+    pred = model.predict([[5]])
+    mse = mean_squared_error(y_test, model.predict(X_test))
+    print(f"{name}: MSE={mse}, price_pred_for_5rooms={pred[0]}")
+Q2. Decision Tree: Play Tennis
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier, export_text
+# small dataset manual
+data = {'Outlook':['Sunny','Overcast','Rain','Sunny','Sunny','Overcast','Rain'],
+        'Temp':['Hot','Hot','Mild','Hot','Cool','Mild','Cool'],
+        'Humidity':['High','High','High','High','Normal','High','Normal'],
+        'Windy':[False,False,False,True,False,True,True],
+        'Play':['No','Yes','Yes','No','Yes','Yes','No']}
+df = pd.DataFrame(data)
+X = pd.get_dummies(df.drop('Play',axis=1).astype(str))
+y = df['Play']
+clf = DecisionTreeClassifier(criterion='entropy')
+clf.fit(X,y)
+print(export_text(clf, feature_names=list(X.columns)))
+
+slip 21
+Q1. Multiple Linear Regression for house price 
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
+df = pd.read_csv('path/to/house_prices_multi.csv').dropna()
+# assume features: 'area','bedrooms','age' and target 'price'
+X = df[['area','bedrooms','age']]
+y = df['price']
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+model = LinearRegression()
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("R2:", r2_score(y_test,pred))
+Q2. Linear SVM using UniversalBank.csv
+import pandas as pd
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+df = pd.read_csv('path/to/UniversalBank.csv').dropna()
+# assume 'Personal_Loan' as target
+X = df.drop(columns=['ID','ZIP Code','Personal Loan'], errors='ignore')
+y = df['Personal Loan']
+sc = StandardScaler(); Xs = sc.fit_transform(X)
+X_train,X_test,y_train,y_test = train_test_split(Xs,y,test_size=0.2,random_state=0)
+svm = SVC(kernel='linear')
+svm.fit(X_train,y_train)
+print("Accuracy:", accuracy_score(y_test, svm.predict(X_test)))
+
+slip 22
+Q1. Simple Linear Regression for house price (drop nulls)
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/house_prices.csv')
+df = df.dropna()
+# assume columns: 'area' and 'price'
+X = df[['area']]
+y = df['price']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = LinearRegression()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+print("MSE:", mean_squared_error(y_test, pred))
+Q2. Apriori on groceries (min_support=0.25)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules
+# load groceries (assume CSV with one transaction per row, items separated by commas)
+df = pd.read_csv('path/to/groceries.csv', header=None)
+transactions = df.fillna('').astype(str).apply(lambda row: [i.strip() for i in ','.join(row).split(',') if i.strip()], axis=1).tolist()
+te = TransactionEncoder()
+te_ary = te.fit(transactions).transform(transactions)
+df_te = pd.DataFrame(te_ary, columns=te.columns_)
+freq = apriori(df_te, min_support=0.25, use_colnames=True)
+rules = association_rules(freq, metric="confidence", min_threshold=0.5)
+print("Frequent itemsets:\n", freq)
+print("\nRules:\n", rules)
+
+slip 23
+Q1. Fit simple & polynomial regression to Salary_positions.csv; compare
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/Salary_positions.csv')
+X = df[['Level']]; y = df['Salary']
+# linear
+lr = LinearRegression().fit(X,y)
+# poly degree2
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+pr = LinearRegression().fit(X_poly,y)
+# evaluate using all data or split
+pred_lr = lr.predict(X); pred_pr = pr.predict(X_poly)
+print("Linear MSE:", mean_squared_error(y,pred_lr))
+print("Poly MSE:", mean_squared_error(y,pred_pr))
+for lvl in [11,12]:
+    print("Linear pred",lvl, lr.predict([[lvl]])[0], "Poly pred", pr.predict(poly.transform([[lvl]]))[0])
+Q2. Find all nulls and remove them
+import pandas as pd
+df = pd.read_csv('path/to/dataset.csv')
+print("Null counts per column:\n", df.isnull().sum())
+df_clean = df.dropna()
+df_clean.to_csv('path/to/dataset_no_nulls.csv', index=False)
+print("Saved cleaned dataset.")
+
+slip24
+Q1. Decision Tree classifier on banknote authentication (UCI)
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+df = pd.read_csv('path/to/data_banknote_authentication.txt', header=None) # UCI file
+# columns: 0-3 features, 4 class
+X = df.iloc[:,0:4]
+y = df.iloc[:,4]
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+clf = DecisionTreeClassifier()
+clf.fit(X_train,y_train)
+print("Accuracy:", accuracy_score(y_test, clf.predict(X_test)))
+Q2. Linear SVM using UniversalBank.csv
+import pandas as pd
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+df = pd.read_csv('path/to/UniversalBank.csv').dropna()
+# assume 'Personal_Loan' as target
+X = df.drop(columns=['ID','ZIP Code','Personal Loan'], errors='ignore')
+y = df['Personal Loan']
+sc = StandardScaler(); Xs = sc.fit_transform(X)
+X_train,X_test,y_train,y_test = train_test_split(Xs,y,test_size=0.2,random_state=0)
+svm = SVC(kernel='linear')
+svm.fit(X_train,y_train)
+print("Accuracy:", accuracy_score(y_test, svm.predict(X_test)))
+
+slip25
+Q1. Polynomial Regression for Housing price
+import pandas as pd
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/boston_housing.csv').dropna()
+# assume features: 'RM' and target 'Price' etc.
+X = df[['RM']]
+y = df['Price']
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+X_train,X_test,y_train,y_test = train_test_split(X_poly,y,test_size=0.2,random_state=0)
+model = LinearRegression()
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("MSE:", mean_squared_error(y_test,pred))
+Q2. Two-layer NN with ReLU and Sigmoid
+import numpy as np
+from tensorflow.keras import models, layers
+model = models.Sequential([
+    layers.Dense(32, activation='relu', input_shape=(10,)),  # example input dim 10
+    layers.Dense(1, activation='sigmoid')
+])
+model.compile(optimizer='adam', loss='binary_crossentropy')
+model.summary()
+
+Slip 26
+Q1. KNN on Indian diabetes database — find optimal K
+import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+df = pd.read_csv('path/to/indian_diabetes.csv').dropna()
+X = df.drop('Outcome',axis=1); y=df['Outcome']
+sc = StandardScaler(); Xs = sc.fit_transform(X)
+X_train,X_test,y_train,y_test = train_test_split(Xs,y,test_size=0.2,random_state=0)
+best_k, best_score = 1,0
+for k in range(1,21):
+    knn = KNeighborsClassifier(n_neighbors=k)
+    score = cross_val_score(knn, X_train, y_train, cv=5).mean()
+    if score>best_score:
+        best_score=score; best_k=k
+print("Best k:",best_k,"CV score:",best_score)
+Q2. Apriori on groceries (min_support=0.25)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules
+# load groceries (assume CSV with one transaction per row, items separated by commas)
+df = pd.read_csv('path/to/groceries.csv', header=None)
+transactions = df.fillna('').astype(str).apply(lambda row: [i.strip() for i in ','.join(row).split(',') if i.strip()], axis=1).tolist()
+te = TransactionEncoder()
+te_ary = te.fit(transactions).transform(transactions)
+df_te = pd.DataFrame(te_ary, columns=te.columns_)
+freq = apriori(df_te, min_support=0.25, use_colnames=True)
+rules = association_rules(freq, metric="confidence", min_threshold=0.5)
+print("Frequent itemsets:\n", freq)
+print("\nRules:\n", rules)
+
+slip 27
+Q1. Multiple Linear Regression (house price)
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
+df = pd.read_csv('path/to/house_prices_multi.csv').dropna()
+# assume features: 'area','bedrooms','age' and target 'price'
+X = df[['area','bedrooms','age']]
+y = df['price']
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+model = LinearRegression()
+model.fit(X_train,y_train)
+pred = model.predict(X_test)
+print("R2:", r2_score(y_test,pred))
+Q2. Fit linear & polynomial regression to Salary_positions.csv; predict level 11 & 12 
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import mean_squared_error
+df = pd.read_csv('path/to/Salary_positions.csv')
+X = df[['Level']]; y = df['Salary']
+# linear
+lr = LinearRegression().fit(X,y)
+# poly degree2
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+pr = LinearRegression().fit(X_poly,y)
+# evaluate using all data or split
+pred_lr = lr.predict(X); pred_pr = pr.predict(X_poly)
+print("Linear MSE:", mean_squared_error(y,pred_lr))
+print("Poly MSE:", mean_squared_error(y,pred_pr))
+for lvl in [11,12]:
+    print("Linear pred",lvl, lr.predict([[lvl]])[0], "Poly pred", pr.predict(poly.transform([[lvl]]))[0])
+
+slip 28
+Q1. Multinomial Naive Bayes for 20 newsgroups
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+data = fetch_20newsgroups(subset='all')
+X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2, random_state=0)
+model = make_pipeline(TfidfVectorizer(), MultinomialNB())
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, pred))
+Q2. SVM on iris and compare kernels
+import seaborn as sns
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+iris = sns.load_dataset('iris')
+X = iris.drop('species',axis=1); y = iris['species']
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+for kern in ['linear','poly','rbf']:
+    svm = SVC(kernel=kern)
+    svm.fit(X_train,y_train)
+    print(kern, "accuracy:", accuracy_score(y_test, svm.predict(X_test)))
+
+slip 29
+Q1. PCA reduce iris 4D -> 2D, train model and predict new flower
+import seaborn as sns
+from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
+import numpy as np
+iris = sns.load_dataset('iris')
+X = iris.drop('species',axis=1); y = iris['species']
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+pipe = Pipeline([('pca', PCA(n_components=2)), ('svc', SVC())])
+pipe.fit(X_train,y_train)
+print("Test accuracy:", pipe.score(X_test,y_test))
+# predict new flower example
+new = np.array([[5.1,3.5,1.4,0.2]])  # sepal/petal measurements
+print("Predicted species:", pipe.predict(new)[0])
+Q2. K-means clustering employees into income groups; elbow & silhouette
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+import matplotlib.pyplot as plt
+df = pd.read_csv('path/to/employees.csv').dropna()
+X = df[['income']]  # or relevant numerical columns
+Xs = StandardScaler().fit_transform(X)
+inertia=[]
+sil=[]
+K=range(2,7)
+for k in K:
+    km = KMeans(n_clusters=k, random_state=0).fit(Xs)
+    inertia.append(km.inertia_)
+    sil.append(silhouette_score(Xs, km.labels_))
+plt.plot(K,inertia,'o-'); plt.title('Elbow'); plt.show()
+plt.plot(K,sil,'o-'); plt.title('Silhouette'); plt.show()
